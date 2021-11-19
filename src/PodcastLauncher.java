@@ -7,7 +7,7 @@ public class PodcastLauncher {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-         System.out.print("GGGGGGGGGGGG");
+         System.out.print("GGGGGGGGGGGGGG");
 	}
 
 }
