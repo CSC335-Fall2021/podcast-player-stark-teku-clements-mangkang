@@ -1,4 +1,3 @@
-
 import javafx.application.Application;
 import PodcastView.PodcastView;
 public class PodcastLauncher {
