@@ -1,9 +1,10 @@
 package PodcastModel;
+import java.util.Observable;
 
-public class PodcastModel {
+public class PodcastModel extends Observable{
 
 	public PodcastModel() {
-		// TODO Auto-generated constructor stub
+ 		// TODO Auto-generated constructor stub
 	}
 
 }
