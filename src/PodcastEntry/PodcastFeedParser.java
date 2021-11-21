@@ -58,7 +58,7 @@ public class PodcastFeedParser {
 	 * @return A PodcastFeed or null if we failed to create one
 	 * @throws RuntimeException
 	 */
-	public PodcastFeed parse() throws RuntimeException{
+	public PodcastFeed parse() throws RuntimeException {
 		PodcastFeed feed = null;
 
 		try {
@@ -76,6 +76,7 @@ public class PodcastFeedParser {
 
 			// Setup parser stream
 			XMLInputFactory factory = XMLInputFactory.newInstance();
+			factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
 			XMLEventReader reader = factory.createXMLEventReader(fetch());
 
 			// Loop over every element in the XML file
@@ -97,7 +98,7 @@ public class PodcastFeedParser {
 							parsingHeader = false;
 							feed = new PodcastFeed(feedURL.toString(), title, description, copyright, language,
 									imageurl, link);
-							
+
 							// Clean vars for next run
 							title = "";
 							description = "";
@@ -107,7 +108,7 @@ public class PodcastFeedParser {
 							link = "";
 							guid = "";
 							mediaURL = "";
-						}						
+						}
 					case "title":
 						if (!parsingImageTag) {
 							title = getTagContents(reader);
@@ -152,12 +153,12 @@ public class PodcastFeedParser {
 					/*
 					 * End tag handling
 					 */
-					
+
 					// Image tag
 					if (e.asEndElement().getName().getLocalPart() == ("image")) {
 						parsingImageTag = false;
 					}
-					
+
 					// Item tag
 					if (e.asEndElement().getName().getLocalPart() == ("item")) {
 						PodcastEpisode n = new PodcastEpisode();
@@ -165,9 +166,9 @@ public class PodcastFeedParser {
 						n.setDescription(description);
 						n.setGUID(guid);
 						n.setMediaURL(mediaURL);
-						
+
 						feed.addEpisode(n);
-												
+
 						// Clean vars for next run
 						title = "";
 						description = "";
@@ -187,45 +188,45 @@ public class PodcastFeedParser {
 
 		return feed;
 	}
-	
+
 	/**
 	 * Gets the contents within a tag
 	 * 
-	 * @param e The XMLEvent at the start of the tag
+	 * @param e      The XMLEvent at the start of the tag
 	 * @param reader The XMLEventReader parsing the file
-	 * @return The contents of the tag 
+	 * @return The contents of the tag
 	 * @throws XMLStreamException
 	 */
 	private String getTagContents(XMLEventReader reader) throws XMLStreamException {
 		// Move inside the tag
 		XMLEvent e = reader.nextEvent();
-		
+
 		// Sanity check
 		if (e.isCharacters()) {
 			return e.asCharacters().getData();
 		}
-		
+
 		// Tag didn't contain text :(
 		return "";
 	}
-	
+
 	/**
 	 * Attempts to return the value of an attribute on a tag
 	 * 
-	 * @param e An XMLEvent which is the start of the tag to search
+	 * @param e      An XMLEvent which is the start of the tag to search
 	 * @param target The attribute as a string to find
 	 * @return The value of the attribute or "" if attribute not found
 	 */
 	private String getAttributeContents(XMLEvent e, String target) {
 		Iterator<Attribute> attributes = e.asStartElement().getAttributes();
-        while (attributes.hasNext()) {
-            Attribute attribute = attributes.next();
-            if (attribute.getName().toString().equals(target)) {
-                return attribute.getValue();
-            }
-        }
-        
-        return "";
+		while (attributes.hasNext()) {
+			Attribute attribute = attributes.next();
+			if (attribute.getName().toString().equals(target)) {
+				return attribute.getValue();
+			}
+		}
+
+		return "";
 	}
 
 }
