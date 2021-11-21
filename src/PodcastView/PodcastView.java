@@ -29,6 +29,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -125,11 +126,18 @@ public class PodcastView extends Application implements Observer {
 
 		pauseButton.setOnMouseClicked((click) -> {
 			// TO BE IMPLEMENTED
-			option.pause();
+			if (option.getStatus() == Status.PLAYING) {
+				option.pause();
+			} else {
+				option.play();
+			}
 		});
 
 		nextTrack.setOnMouseClicked((click) -> {
-			// TO BE IMPLEMENTED Kyle or Tinnawit
+			int numberOfEpisodes = podcastList.getItems().size();
+			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() + 1) % numberOfEpisodes;
+			podcastList.getSelectionModel().select(nextInd);
+			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
 	}
 
