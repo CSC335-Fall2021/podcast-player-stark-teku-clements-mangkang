@@ -113,4 +113,15 @@ public class PodcastEpisode implements Serializable {
 		episodeMediaURL = s;
 	}
 
+	/**
+	 * Gets a string representation of the episode. Currently this is the same as
+	 * getTitle()
+	 * 
+	 * @return A string representing the episode
+	 */
+	@Override
+	public String toString() {
+		return episodeTitle;
+	}
+
 }

@@ -36,10 +36,8 @@ public class PodcastModel extends Observable {
 			followedFeeds.add(f);
 
 			// TODO: Uncomment this once we decide how we're going to update the view
-			/*
-			 * setChanged();
-			 * notifyObservers();
-			 */
+			setChanged();
+			notifyObservers(new PlaylistUpdate(f));
 			return true;
 		}
 	}

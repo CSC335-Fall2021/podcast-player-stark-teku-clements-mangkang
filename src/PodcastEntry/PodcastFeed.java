@@ -117,4 +117,15 @@ public class PodcastFeed implements Serializable {
 	public void addEpisode(PodcastEpisode e) {
 		feedEpisodes.add(e);
 	}
+	
+	/**
+	 * Returns a string representing this PodcastFeed.
+	 * Currently this is the same as getTitle()
+	 * 
+	 * @return A string representing the Podcast Feed
+	 */
+	@Override
+	public String toString() {
+		return feedTitle;
+	}
 }
