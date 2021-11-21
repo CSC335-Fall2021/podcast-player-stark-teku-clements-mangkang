@@ -8,6 +8,7 @@ import PodcastController.PodcastController;
 import PodcastEntry.PodcastEpisode;
 import PodcastEntry.PodcastFeed;
 import PodcastModel.PodcastModel;
+import PodcastModel.PlayUpdate;
 import PodcastModel.PlaylistUpdate;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -17,6 +18,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -34,7 +39,7 @@ public class PodcastView extends Application implements Observer {
 	private BorderPane obj;
 	private MediaPlayer option;
 	private PodcastController controller;
-	private ListView<PodcastEpisode> podcastList;
+	private TableView<PodcastEpisode> podcastList;
 
 	@Override
 	public void start(Stage arg0) throws Exception {
@@ -60,8 +65,27 @@ public class PodcastView extends Application implements Observer {
 		obj.setPadding(new Insets(8, 8, 8, 8));
 		obj.setStyle("-fx-background-color:#00FF7F; -fx-opacity:1;");
 
-		// Create a list of available podcasts
-		podcastList = new ListView<PodcastEpisode>();
+		// Create the list of Podcast Episodes
+		podcastList = new TableView<PodcastEpisode>();
+		TableColumn<PodcastEpisode, String> titleCol = new TableColumn<PodcastEpisode, String>("Title");
+		titleCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("title"));
+		titleCol.setMinWidth(650);
+		TableColumn<PodcastEpisode, String> publishDateCol = new TableColumn<PodcastEpisode, String>("Date Published");
+		publishDateCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("publishDate"));
+		publishDateCol.setMinWidth(100);
+		TableColumn<PodcastEpisode, String> durationCol = new TableColumn<PodcastEpisode, String>("Duration");
+		durationCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("duration"));
+		durationCol.setMinWidth(100);
+		podcastList.getColumns().add(titleCol);
+		podcastList.getColumns().add(publishDateCol);
+		podcastList.getColumns().add(durationCol);
+
+		// Event handler for when podcast episode is double clicked
+		podcastList.setOnMouseClicked((event) -> {
+			if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+				controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			}
+		});
 
 		// TODO: We use a hardcoded feed for now, need to make it user definable
 		controller.addPodcastFeed("https://podcastfeeds.nbcnews.com/HL4TzgYC");
@@ -96,16 +120,7 @@ public class PodcastView extends Application implements Observer {
 		});
 
 		playButton.setOnMouseClicked((click) -> {
-			// Stop current playback
-			if (option != null) {
-				option.stop();
-			}
-
-			// Load and play our new file
-			Media currentMedia = new Media(podcastList.getSelectionModel().getSelectedItem().getMediaURL());
-			option = new MediaPlayer(currentMedia);
-			option.setAutoPlay(false);
-			option.play();
+			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
 
 		pauseButton.setOnMouseClicked((click) -> {
@@ -127,6 +142,23 @@ public class PodcastView extends Application implements Observer {
 			updatePlaylist(playlistChange.getPodcastFeed());
 		}
 
+		if (arg.getClass() == PlayUpdate.class) {
+			PlayUpdate playEpisode = (PlayUpdate) arg;
+
+			// Stop current playback
+			if (option != null) {
+				option.stop();
+			}
+
+			// Load and play our new file
+			if (playEpisode.getEpisode() != null) {
+				Media currentMedia = new Media(playEpisode.getEpisode().getMediaURL());
+				option = new MediaPlayer(currentMedia);
+				option.setAutoPlay(false);
+				option.play();
+			}
+		}
+
 	}
 
 	// TODO: This is harcoded to nuke and reload the list fresh. It also assumes a
@@ -136,9 +168,7 @@ public class PodcastView extends Application implements Observer {
 		ArrayList<PodcastEpisode> episodes = feed.getEpisodes();
 		podcastList.getItems().clear();
 
-		for (PodcastEpisode e : episodes) {
-			podcastList.getItems().add(e);
-		}
+		podcastList.getItems().addAll(episodes);
 	}
 
 }

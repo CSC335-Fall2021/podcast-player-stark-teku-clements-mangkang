@@ -35,7 +35,6 @@ public class PodcastModel extends Observable {
 		} else {
 			followedFeeds.add(f);
 
-			// TODO: Uncomment this once we decide how we're going to update the view
 			setChanged();
 			notifyObservers(new PlaylistUpdate(f));
 			return true;
@@ -58,6 +57,9 @@ public class PodcastModel extends Observable {
 	 */
 	public void startPlayback(PodcastEpisode p) {
 		nowPlaying = p;
+
+		setChanged();
+		notifyObservers(new PlayUpdate(p));
 	}
 
 	/**
