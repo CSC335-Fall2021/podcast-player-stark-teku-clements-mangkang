@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -65,6 +67,7 @@ public class PodcastFeedParser {
 			// Need to temporarily store values while parsing
 			boolean parsingHeader = true; // First bit we parse should always be the header/feed description
 			boolean parsingImageTag = false;
+			DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
 			String title = "";
 			String description = "";
 			String copyright = "";
@@ -73,6 +76,8 @@ public class PodcastFeedParser {
 			String link = "";
 			String guid = "";
 			String mediaURL = "";
+			String duration = "";
+			LocalDate pubDate = LocalDate.MIN;
 
 			// Setup parser stream
 			XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -108,6 +113,8 @@ public class PodcastFeedParser {
 							link = "";
 							guid = "";
 							mediaURL = "";
+							duration = "";
+							pubDate = LocalDate.MIN;
 						}
 					case "title":
 						if (!parsingImageTag) {
@@ -145,6 +152,12 @@ public class PodcastFeedParser {
 						// Media URL is a tag attribute on enclosure tag
 						mediaURL = getAttributeContents(e, "url");
 						break;
+					case "duration":
+						duration = getTagContents(reader);
+						break;
+					case "pubdate":
+						pubDate = LocalDate.parse(getTagContents(reader), formatter);
+						break;
 					default:
 						break;
 					}
@@ -166,6 +179,8 @@ public class PodcastFeedParser {
 						n.setDescription(description);
 						n.setGUID(guid);
 						n.setMediaURL(mediaURL);
+						n.setDuration(duration);
+						n.setPublishDate(pubDate);
 
 						feed.addEpisode(n);
 
@@ -178,6 +193,8 @@ public class PodcastFeedParser {
 						link = "";
 						guid = "";
 						mediaURL = "";
+						duration = "";
+						pubDate = LocalDate.MIN;
 					}
 				}
 			}

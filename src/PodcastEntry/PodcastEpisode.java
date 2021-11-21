@@ -1,6 +1,7 @@
 package PodcastEntry;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
  * This class represents and individual episode of a podcast and contains all of
@@ -15,6 +16,8 @@ public class PodcastEpisode implements Serializable {
 	private String episodeDescription;
 	private String episodeLink;
 	private String episodeMediaURL;
+	private String episodeDuration;
+	private LocalDate episodeDate;
 
 	/**
 	 * Constructor
@@ -114,14 +117,50 @@ public class PodcastEpisode implements Serializable {
 	}
 
 	/**
-	 * Gets a string representation of the episode. Currently this is the same as
-	 * getTitle()
+	 * Gets the playback duration of the podcast
+	 * 
+	 * @return A string representing the playback duration
+	 */
+	public String getDuration() {
+		return episodeDuration;
+	}
+
+	/**
+	 * Sets the playback duration of the podcast
+	 * 
+	 * @param s A string containing the playback duration
+	 */
+	public void setDuration(String s) {
+		episodeDuration = s;
+	}
+
+	/**
+	 * Sets the date that this episode was published
+	 * 
+	 * @param d The LocalDate published
+	 */
+	public void setPublishDate(LocalDate d) {
+		episodeDate = d;
+	}
+
+	/**
+	 * Gets the date that this episode was published
+	 * 
+	 * @return The LocalDate published
+	 */
+	public LocalDate getPublishDate() {
+		return episodeDate;
+	}
+
+	/**
+	 * Gets a string representation of the episode. Currently this is the title and
+	 * duration
 	 * 
 	 * @return A string representing the episode
 	 */
 	@Override
 	public String toString() {
-		return episodeTitle;
+		return episodeTitle + " - " + episodeDuration + " - " + episodeDate;
 	}
 
 }
