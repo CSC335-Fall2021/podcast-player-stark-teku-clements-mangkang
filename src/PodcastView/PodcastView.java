@@ -116,8 +116,10 @@ public class PodcastView extends Application implements Observer {
 		obj.setBottom(buttonBar);
 
 		previousTrack.setOnMouseClicked((click) -> {
-			// TO BE IMPLEMENTED Kyle or Tinnawit
-
+			int numberOfEpisodes = podcastList.getItems().size();
+			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() - 1) % numberOfEpisodes;
+			podcastList.getSelectionModel().select(nextInd);
+			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
 
 		playButton.setOnMouseClicked((click) -> {
@@ -139,6 +141,8 @@ public class PodcastView extends Application implements Observer {
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
+		
+		
 	}
 
 	@Override
