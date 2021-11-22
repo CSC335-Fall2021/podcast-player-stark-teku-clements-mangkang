@@ -15,6 +15,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
@@ -41,6 +42,8 @@ public class PodcastView extends Application implements Observer {
 	private MediaPlayer option;
 	private PodcastController controller;
 	private TableView<PodcastEpisode> podcastList;
+	private Label headerLabel;
+	private ChoiceBox<PodcastFeed> feedSelector;
 
 	@Override
 	public void start(Stage arg0) throws Exception {
@@ -88,26 +91,34 @@ public class PodcastView extends Application implements Observer {
 			}
 		});
 
-		// TODO: We use a hardcoded feed for now, need to make it user definable
-		controller.addPodcastFeed("https://podcastfeeds.nbcnews.com/HL4TzgYC");
-
 		Slider timeSlider = new Slider();
 		timeSlider.setMinWidth(200);
+		timeSlider.setPadding(new Insets(10, 0, 10, 0));
 
-		VBox player = new VBox(timeSlider, podcastList);
+		// Podcast Feed Selector
+		Label feedSelectorLabel = new Label("Podcast: ");
+		feedSelector = new ChoiceBox<PodcastFeed>();
+		HBox feedSelectorBox = new HBox(10, feedSelectorLabel, feedSelector);
+		feedSelectorBox.setAlignment(Pos.CENTER);
+
+		// Event handler
+		feedSelector.setOnAction((click) -> {
+			changePlaylist(feedSelector.getSelectionModel().getSelectedItem());
+		});
+
+		VBox player = new VBox(10, timeSlider, feedSelectorBox, podcastList);
+		player.setPadding(new Insets(10, 10, 10, 10));
 
 		Button playButton = new Button("Play");
 		Button pauseButton = new Button("Pause");
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
 
-		Label label = new Label("                             Welcome to our Podcast Player");
+		headerLabel = new Label("Welcome to our Podcast Player");
+		headerLabel.setFont(new Font("Helvetica", 30));
+		BorderPane.setAlignment(headerLabel, Pos.CENTER);
 
-		label.setFont(new Font("Helvetica", 30));
-
-		label.setAlignment(Pos.TOP_CENTER);
-
-		obj.setTop(label);
+		obj.setTop(headerLabel);
 
 		obj.setCenter(player);
 
@@ -139,6 +150,10 @@ public class PodcastView extends Application implements Observer {
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
+
+		// TODO: We use a hardcoded feed for now, need to make it user definable
+		controller.addPodcastFeed("https://podcastfeeds.nbcnews.com/HL4TzgYC");
+		controller.addPodcastFeed("https://feeds.megaphone.fm/ADL9840290619");
 	}
 
 	@Override
@@ -161,6 +176,7 @@ public class PodcastView extends Application implements Observer {
 			// Load and play our new file
 			if (playEpisode.getEpisode() != null) {
 				Media currentMedia = new Media(playEpisode.getEpisode().getMediaURL());
+				headerLabel.setText(playEpisode.getEpisode().getTitle());
 				option = new MediaPlayer(currentMedia);
 				option.setAutoPlay(false);
 				option.play();
@@ -169,14 +185,28 @@ public class PodcastView extends Application implements Observer {
 
 	}
 
-	// TODO: This is harcoded to nuke and reload the list fresh. It also assumes a
-	// single playlist and will need to be modified if we want to support multiple
-	// feeds
+	/**
+	 * Adds a PodcastFeed to the choice box
+	 * TODO: Make this smarter so it doesn't add duplicates
+	 * 
+	 * @param feed The PodcastFeed to add to the list
+	 */
 	private void updatePlaylist(PodcastFeed feed) {
-		ArrayList<PodcastEpisode> episodes = feed.getEpisodes();
-		podcastList.getItems().clear();
+		feedSelector.getItems().addAll(feed);
+		if (feedSelector.getSelectionModel().getSelectedItem() == null) {
+			feedSelector.getSelectionModel().select(feed);
+			changePlaylist(feed);
+		}
+	}
 
-		podcastList.getItems().addAll(episodes);
+	/**
+	 * Clears the podcastList and loads it with all of the episodes in feed
+	 * 
+	 * @param feed The PodcastFeed to display
+	 */
+	private void changePlaylist(PodcastFeed feed) {
+		podcastList.getItems().clear();
+		podcastList.getItems().addAll(feed.getEpisodes());
 	}
 
 }
