@@ -1,6 +1,5 @@
 package PodcastView;
 
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -17,7 +16,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -53,7 +54,12 @@ public class PodcastView extends Application implements Observer {
 
 		createView();
 
-		Scene display = new Scene(obj);
+		// Combine our Menu and our Main view
+		VBox root = new VBox(createMenu());
+		root.getChildren().add(obj);
+
+		// Show the UI
+		Scene display = new Scene(root);
 		Stage stage = new Stage();
 		stage.setScene(display);
 		stage.setTitle("Podcast Player");
@@ -61,7 +67,27 @@ public class PodcastView extends Application implements Observer {
 
 	}
 
-	public void createView() {
+	/**
+	 * Creates our MenuBar
+	 * 
+	 * @return
+	 */
+	private MenuBar createMenu() {
+		MenuBar menuBar = new MenuBar();
+		Menu fileMenu = new Menu("File");
+		MenuItem addFeedMenu = new MenuItem("Add Podcast RSS Feed...");
+		fileMenu.getItems().add(addFeedMenu);
+		menuBar.getMenus().add(fileMenu);
+
+		// Event handler for menu items
+		addFeedMenu.setOnAction((click) -> {
+			new AddFeedWindow(controller);
+		});
+
+		return menuBar;
+	}
+
+	private void createView() {
 
 		obj = new BorderPane();
 		obj.setMinSize(900, 400);
@@ -188,8 +214,8 @@ public class PodcastView extends Application implements Observer {
 	}
 
 	/**
-	 * Adds a PodcastFeed to the choice box
-	 * TODO: Make this smarter so it doesn't add duplicates
+	 * Adds a PodcastFeed to the choice box TODO: Make this smarter so it doesn't
+	 * add duplicates
 	 * 
 	 * @param feed The PodcastFeed to add to the list
 	 */
