@@ -36,6 +36,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 @SuppressWarnings("deprecation")
@@ -128,6 +129,7 @@ public class PodcastView extends Application implements Observer {
 
 		// Podcast Feed Selector
 		Label feedSelectorLabel = new Label("Podcast: ");
+		MenuBar menuBar = new MenuBar();
 		feedSelector = new ChoiceBox<PodcastFeed>();
 		HBox feedSelectorBox = new HBox(10, feedSelectorLabel, feedSelector);
 		feedSelectorBox.setAlignment(Pos.CENTER);
@@ -144,16 +146,18 @@ public class PodcastView extends Application implements Observer {
 		Button pauseButton = new Button("Pause");
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
-
+		Button download = new Button ("Download");
+		
+		
 		headerLabel = new Label("Welcome to our Podcast Player");
-		headerLabel.setFont(new Font("Helvetica", 30));
+		headerLabel.setFont(Font.font("Helvetica",FontWeight.EXTRA_BOLD, 30));
 		BorderPane.setAlignment(headerLabel, Pos.CENTER);
 
 		obj.setTop(headerLabel);
 
 		obj.setCenter(player);
 
-		HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack);
+		HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack, download);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
 
@@ -169,7 +173,7 @@ public class PodcastView extends Application implements Observer {
 		});
 
 		pauseButton.setOnMouseClicked((click) -> {
-			// TO BE IMPLEMENTED
+		 
 			if (option.getStatus() == Status.PLAYING) {
 				option.pause();
 			} else {
@@ -182,6 +186,11 @@ public class PodcastView extends Application implements Observer {
 			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() + 1) % numberOfEpisodes;
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+		});
+		
+		download.setOnMouseClicked( (click) -> {
+			
+			
 		});
 	}
 
