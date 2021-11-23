@@ -12,6 +12,7 @@ import PodcastModel.PodcastModel;
 import PodcastModel.PlayUpdate;
 import PodcastModel.PlaylistUpdate;
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -115,6 +116,16 @@ public class PodcastView extends Application implements Observer {
 		TableColumn<PodcastEpisode, String> titleCol = new TableColumn<PodcastEpisode, String>("Title");
 		titleCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("title"));
 		titleCol.setMinWidth(650);
+		TableColumn<PodcastEpisode, String> listenedCol = new TableColumn<PodcastEpisode, String>("Listened");
+		listenedCol.setCellValueFactory(cellData -> {
+			cellData.getTableColumn().setStyle("-fx-alignment: CENTER;");
+			if (cellData.getValue().getListenedTo()) {
+				return new SimpleStringProperty("X");
+			} else {
+				return new SimpleStringProperty("");
+			}
+		});
+		listenedCol.setMinWidth(10);
 		TableColumn<PodcastEpisode, String> publishDateCol = new TableColumn<PodcastEpisode, String>("Date Published");
 		publishDateCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("publishDate"));
 		publishDateCol.setMinWidth(100);
@@ -122,6 +133,7 @@ public class PodcastView extends Application implements Observer {
 		durationCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("duration"));
 		durationCol.setMinWidth(90);
 		podcastList.getColumns().add(titleCol);
+		podcastList.getColumns().add(listenedCol);
 		podcastList.getColumns().add(publishDateCol);
 		podcastList.getColumns().add(durationCol);
 
@@ -220,6 +232,7 @@ public class PodcastView extends Application implements Observer {
 
 				option.setOnPlaying(() -> {
 					headerLabel.setText(playEpisode.getEpisode().getTitle());
+					podcastList.refresh();
 				});
 
 				option.setOnError(() -> {

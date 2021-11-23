@@ -64,9 +64,10 @@ public class PodcastModel extends Observable {
 	 */
 	public void startPlayback(PodcastEpisode p) {
 		nowPlaying = p;
+		nowPlaying.setListenedTo(true);
 
 		setChanged();
-		notifyObservers(new PlayUpdate(p));
+		notifyObservers(new PlayUpdate(nowPlaying));
 	}
 
 	/**
