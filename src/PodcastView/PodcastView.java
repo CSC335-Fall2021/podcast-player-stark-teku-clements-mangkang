@@ -13,6 +13,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -22,6 +23,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
@@ -57,6 +59,9 @@ public class PodcastView extends Application implements Observer {
 		// Combine our Menu and our Main view
 		VBox root = new VBox(createMenu());
 		root.getChildren().add(obj);
+
+		// Load saved feeds
+		controller.loadFeeds();
 
 		// Show the UI
 		Scene display = new Scene(root);
@@ -105,7 +110,7 @@ public class PodcastView extends Application implements Observer {
 		publishDateCol.setMinWidth(100);
 		TableColumn<PodcastEpisode, String> durationCol = new TableColumn<PodcastEpisode, String>("Duration");
 		durationCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("duration"));
-		durationCol.setMinWidth(100);
+		durationCol.setMinWidth(90);
 		podcastList.getColumns().add(titleCol);
 		podcastList.getColumns().add(publishDateCol);
 		podcastList.getColumns().add(durationCol);
@@ -178,10 +183,6 @@ public class PodcastView extends Application implements Observer {
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
-
-		// TODO: We use a hardcoded feed for now, need to make it user definable
-		controller.addPodcastFeed("https://podcastfeeds.nbcnews.com/HL4TzgYC");
-		controller.addPodcastFeed("https://feeds.megaphone.fm/ADL9840290619");
 	}
 
 	@Override
@@ -204,8 +205,16 @@ public class PodcastView extends Application implements Observer {
 			// Load and play our new file
 			if (playEpisode.getEpisode() != null) {
 				Media currentMedia = new Media(playEpisode.getEpisode().getMediaURL());
-				headerLabel.setText(playEpisode.getEpisode().getTitle());
+				headerLabel.setText("Loading: " + playEpisode.getEpisode().getTitle());
 				option = new MediaPlayer(currentMedia);
+
+				option.setOnPlaying(() -> {
+					headerLabel.setText(playEpisode.getEpisode().getTitle());
+				});
+
+				option.setOnError(() -> {
+					showErrorMessage("An unexpected error was encountered when playing the selected podcast.");
+				});
 				option.setAutoPlay(false);
 				option.play();
 			}
@@ -235,6 +244,18 @@ public class PodcastView extends Application implements Observer {
 	private void changePlaylist(PodcastFeed feed) {
 		podcastList.getItems().clear();
 		podcastList.getItems().addAll(feed.getEpisodes());
+	}
+
+	/**
+	 * Shows a generic error when for when bad things happen
+	 * 
+	 * @param msg The message to display to the user
+	 */
+	private void showErrorMessage(String msg) {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Error!");
+		alert.setContentText(msg);
+		alert.showAndWait();
 	}
 
 }

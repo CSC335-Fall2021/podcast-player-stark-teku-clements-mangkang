@@ -71,5 +71,14 @@ public class PodcastController {
 	public void prevEpisode() {
 		myModel.prevTrack();
 	}
+	
+	/**
+	 * Loads saved feeds from disk
+	 */
+	public void loadFeeds() {
+		// TODO: We use a hardcoded feed for now, need to make it user definable
+		addPodcastFeed("https://podcastfeeds.nbcnews.com/HL4TzgYC");
+		addPodcastFeed("https://feeds.megaphone.fm/ADL9840290619");
+	}
 
 }
