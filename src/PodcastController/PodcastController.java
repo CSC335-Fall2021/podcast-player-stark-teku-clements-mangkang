@@ -3,6 +3,8 @@ package PodcastController;
 import PodcastModel.PodcastModel;
 import PodcastEntry.PodcastFeed;
 import PodcastEntry.PodcastEpisode;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -50,35 +52,29 @@ public class PodcastController {
 	}
 
 	/**
-	 * Pauses playback of the podcast
-	 */
-	public void pauseEpisode() {
-		myModel.stopPlayback();
-	}
-
-	/**
-	 * Stops playing the currently playing podcast episode (if applicable) and
-	 * starts playing the next episode
-	 */
-	public void nextEpisode() {
-		myModel.nextTrack();
-	}
-
-	/**
-	 * Stops playing the currently playing podcast episode (if applicable) and
-	 * starts playing the previous episode
-	 */
-	public void prevEpisode() {
-		myModel.prevTrack();
-	}
-	
-	/**
 	 * Loads saved feeds from disk
 	 */
 	public void loadFeeds() {
-		// TODO: We use a hardcoded feed for now, need to make it user definable
-		addPodcastFeed("https://podcastfeeds.nbcnews.com/HL4TzgYC");
-		addPodcastFeed("https://feeds.megaphone.fm/ADL9840290619");
+		try {
+			myModel.loadFeeds();
+		} catch (IOException e) {
+			// We're just going to eat this exception and not load the feeds if it happens.
+		}
+
+		// User doesn't have any saved feeds. Give them some defaults
+		if (myModel.getFeeds().size() == 0) {
+			addPodcastFeed("https://podcastfeeds.nbcnews.com/HL4TzgYC");
+			addPodcastFeed("https://feeds.megaphone.fm/ADL9840290619");
+		}
+	}
+
+	/**
+	 * Saves our podcast feed and episode info to disk
+	 * 
+	 * @throws IOException
+	 */
+	public void saveFeeds() throws IOException {
+		myModel.saveFeeds();
 	}
 
 }

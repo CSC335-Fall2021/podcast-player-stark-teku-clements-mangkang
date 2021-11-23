@@ -1,5 +1,7 @@
 package PodcastView;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -66,6 +68,14 @@ public class PodcastView extends Application implements Observer {
 		// Show the UI
 		Scene display = new Scene(root);
 		Stage stage = new Stage();
+		// Save our feed list on quit
+		stage.setOnCloseRequest((event) -> {
+			try {
+				controller.saveFeeds();
+			} catch (IOException e) {
+				showErrorMessage("Error saving podcast information: " + e);
+			}
+		});
 		stage.setScene(display);
 		stage.setTitle("Podcast Player");
 		stage.show();

@@ -1,6 +1,13 @@
 package PodcastModel;
 
 import PodcastEntry.*;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Observable;
 
@@ -63,18 +70,48 @@ public class PodcastModel extends Observable {
 	}
 
 	/**
-	 * Stops/Pauses playback of the current podcast
+	 * Loads our feeds and episodes from disk
+	 * 
+	 * @throws IOException
 	 */
-	public void stopPlayback() {
+	@SuppressWarnings("unchecked")
+	public void loadFeeds() throws IOException {
+		try {
+			FileInputStream fileStream = new FileInputStream("PodcastDB");
+			ObjectInputStream objStream = new ObjectInputStream(fileStream);
 
+			followedFeeds = (ArrayList<PodcastFeed>) objStream.readObject();
+
+			for (PodcastFeed feed : followedFeeds) {
+				setChanged();
+				notifyObservers(new PlaylistUpdate(feed));
+			}
+
+			objStream.close();
+			fileStream.close();
+		} catch (IOException | ClassNotFoundException e) {
+			throw new IOException(e);
+		}
 	}
 
-	public void nextTrack() {
+	/**
+	 * Saves our feeds and episodes to disk
+	 * 
+	 * @throws IOException
+	 */
+	public void saveFeeds() throws IOException {
+		try {
+			FileOutputStream fileStream = new FileOutputStream("PodcastDB");
+			ObjectOutputStream objStream = new ObjectOutputStream(fileStream);
 
-	}
+			objStream.writeObject(followedFeeds);
 
-	public void prevTrack() {
+			objStream.close();
+			fileStream.close();
 
+		} catch (IOException e) {
+			throw e;
+		}
 	}
 
 }
