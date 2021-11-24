@@ -189,8 +189,7 @@ public class PodcastView extends Application implements Observer {
 		});
 		
 		download.setOnMouseClicked( (click) -> {
-			
-			
+	      
 		});
 	}
 
