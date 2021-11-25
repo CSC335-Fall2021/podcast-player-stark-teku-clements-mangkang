@@ -251,7 +251,7 @@ public class PodcastView extends Application implements Observer {
 					@Override
 					public void invalidated(javafx.beans.Observable arg0) {
 						// TODO Auto-generated method stub
-						option.setVolume(volumeBar.getValue());
+						option.setVolume(volumeBar.getValue()/100);
 					}
 					
 				});
@@ -267,6 +267,7 @@ public class PodcastView extends Application implements Observer {
 				option.play();
 			}
 		}
+		
 
 	}
 
