@@ -12,6 +12,7 @@ import PodcastModel.PodcastModel;
 import PodcastModel.PlayUpdate;
 import PodcastModel.PlaylistUpdate;
 import javafx.application.Application;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -47,10 +48,12 @@ public class PodcastView extends Application implements Observer {
 
 	private BorderPane obj;
 	private MediaPlayer option;
+	private Media selected;
 	private PodcastController controller;
 	private TableView<PodcastEpisode> podcastList;
 	private Label headerLabel;
 	private ChoiceBox<PodcastFeed> feedSelector;
+	private Slider volumeBar;
 
 	@Override
 	public void start(Stage arg0) throws Exception {
@@ -178,8 +181,12 @@ public class PodcastView extends Application implements Observer {
 		obj.setTop(headerLabel);
 
 		obj.setCenter(player);
-
-		HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack, download);
+        
+		
+		 
+		
+		volumeBar = new Slider();
+		HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack, download,volumeBar);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
 
@@ -191,6 +198,7 @@ public class PodcastView extends Application implements Observer {
 		});
 
 		playButton.setOnMouseClicked((click) -> {
+			 
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
 
@@ -237,7 +245,16 @@ public class PodcastView extends Application implements Observer {
 				Media currentMedia = new Media(playEpisode.getEpisode().getMediaURL());
 				headerLabel.setText("Loading: " + playEpisode.getEpisode().getTitle());
 				option = new MediaPlayer(currentMedia);
+				volumeBar.setValue(option.getVolume() * 100);
+				volumeBar.valueProperty().addListener(new InvalidationListener()  {
 
+					@Override
+					public void invalidated(javafx.beans.Observable arg0) {
+						// TODO Auto-generated method stub
+						option.setVolume(volumeBar.getValue());
+					}
+					
+				});
 				option.setOnPlaying(() -> {
 					headerLabel.setText(playEpisode.getEpisode().getTitle());
 					podcastList.refresh();
