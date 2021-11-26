@@ -13,6 +13,8 @@ import PodcastModel.PlayUpdate;
 import PodcastModel.PlaylistUpdate;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -41,6 +43,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -49,6 +52,7 @@ public class PodcastView extends Application implements Observer {
 
 	private BorderPane obj;
 	private MediaPlayer option;
+	private Media selected;
 	private PodcastController controller;
 	private TableView<PodcastEpisode> podcastList;
 	private Label headerLabel;
@@ -58,10 +62,12 @@ public class PodcastView extends Application implements Observer {
 	private Label curTimeLabel;
 	private Label totalTimeLabel;
 	private boolean isTempPaused;
+	private Slider volumeBar;
 
 	@Override
 	public void start(Stage arg0) throws Exception {
 		PodcastModel model = new PodcastModel();
+		
 		controller = new PodcastController(model);
 		model.addObserver(this);
 
@@ -124,6 +130,17 @@ public class PodcastView extends Application implements Observer {
 		TableColumn<PodcastEpisode, String> titleCol = new TableColumn<PodcastEpisode, String>("Title");
 		titleCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("title"));
 		titleCol.setMinWidth(650);
+		TableColumn<PodcastEpisode, String> listenedCol = new TableColumn<PodcastEpisode, String>("Listened");
+		TableColumn<PodcastEpisode, String> downloadedCol = new TableColumn<PodcastEpisode, String>("Downloaded");
+		listenedCol.setCellValueFactory(cellData -> {
+			cellData.getTableColumn().setStyle("-fx-alignment: CENTER;");
+			if (cellData.getValue().getListenedTo()) {
+				return new SimpleStringProperty("X");
+			} else {
+				return new SimpleStringProperty("");
+			}
+		});
+		listenedCol.setMinWidth(10);
 		TableColumn<PodcastEpisode, String> publishDateCol = new TableColumn<PodcastEpisode, String>("Date Published");
 		publishDateCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("publishDate"));
 		publishDateCol.setMinWidth(100);
@@ -131,8 +148,10 @@ public class PodcastView extends Application implements Observer {
 		durationCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("duration"));
 		durationCol.setMinWidth(90);
 		podcastList.getColumns().add(titleCol);
+		podcastList.getColumns().add(listenedCol);
 		podcastList.getColumns().add(publishDateCol);
 		podcastList.getColumns().add(durationCol);
+		podcastList.getColumns().add(downloadedCol);
 
 		// Event handler for when podcast episode is double clicked
 		podcastList.setOnMouseClicked((event) -> {
@@ -150,6 +169,7 @@ public class PodcastView extends Application implements Observer {
 
 		// Podcast Feed Selector
 		Label feedSelectorLabel = new Label("Podcast: ");
+		MenuBar menuBar = new MenuBar();
 		feedSelector = new ChoiceBox<PodcastFeed>();
 		HBox feedSelectorBox = new HBox(10, feedSelectorLabel, feedSelector);
 		feedSelectorBox.setAlignment(Pos.CENTER);
@@ -166,16 +186,22 @@ public class PodcastView extends Application implements Observer {
 		Button pauseButton = new Button("Pause");
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
-
+		Button download = new Button ("Download");
+		
+		
 		headerLabel = new Label("Welcome to our Podcast Player");
-		headerLabel.setFont(new Font("Helvetica", 30));
+		headerLabel.setFont(Font.font("Helvetica",FontWeight.EXTRA_BOLD, 30));
 		BorderPane.setAlignment(headerLabel, Pos.CENTER);
 
 		obj.setTop(headerLabel);
 
 		obj.setCenter(player);
-
-		HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack);
+        
+		
+		 
+		
+		volumeBar = new Slider();
+		HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack, download,volumeBar);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
 
@@ -187,11 +213,12 @@ public class PodcastView extends Application implements Observer {
 		});
 
 		playButton.setOnMouseClicked((click) -> {
+			 
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
 
 		pauseButton.setOnMouseClicked((click) -> {
-			// TO BE IMPLEMENTED
+		 
 			if (option.getStatus() == Status.PLAYING) {
 				option.pause();
 			} else {
@@ -204,6 +231,10 @@ public class PodcastView extends Application implements Observer {
 			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() + 1) % numberOfEpisodes;
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+		});
+		
+		download.setOnMouseClicked( (click) -> {
+	      
 		});
 	}
 	
@@ -286,22 +317,34 @@ public class PodcastView extends Application implements Observer {
 				
 				timeSlider.setValue(0);
 				totalTimeLabel.setText("0:00");
+				
+				volumeBar.setValue(option.getVolume() * 100);
+				volumeBar.valueProperty().addListener(new InvalidationListener()  {
 
+					@Override
+					public void invalidated(javafx.beans.Observable arg0) {
+						// TODO Auto-generated method stub
+						option.setVolume(volumeBar.getValue()/100);
+					}
+					
+				});
 				option.setOnPlaying(() -> {
 					headerLabel.setText(playEpisode.getEpisode().getTitle());
+					podcastList.refresh();
 				});
 
 				option.setOnError(() -> {
 					showErrorMessage("An unexpected error was encountered when playing the selected podcast.");
 				});
 				
-				initPlayerListeners();
+				initPlayerSliderListeners();
 			}
 		}
+		
 
 	}
 	
-	private void initPlayerListeners() {
+	private void initPlayerSliderListeners() {
 		option.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
 			Platform.runLater(() -> {
 		    	if (!timeSlider.isDisabled() && !timeSlider.isValueChanging()) {

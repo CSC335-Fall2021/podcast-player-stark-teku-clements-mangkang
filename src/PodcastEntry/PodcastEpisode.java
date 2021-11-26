@@ -18,12 +18,13 @@ public class PodcastEpisode implements Serializable {
 	private String episodeMediaURL;
 	private String episodeDuration;
 	private LocalDate episodeDate;
+	private boolean listenedTo;
 
 	/**
 	 * Constructor
 	 */
 	public PodcastEpisode() {
-		// This space for rent
+		listenedTo = false;
 	}
 
 	/**
@@ -150,6 +151,24 @@ public class PodcastEpisode implements Serializable {
 	 */
 	public LocalDate getPublishDate() {
 		return episodeDate;
+	}
+
+	/**
+	 * Sets if the episode has been listened to
+	 * 
+	 * @param t Boolean, true if listened to, false if not
+	 */
+	public void setListenedTo(boolean t) {
+		listenedTo = t;
+	}
+
+	/**
+	 * Gets if this episode has been listened to or not
+	 * 
+	 * @return True if listened to, false if not
+	 */
+	public boolean getListenedTo() {
+		return listenedTo;
 	}
 
 	/**

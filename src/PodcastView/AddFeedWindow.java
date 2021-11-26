@@ -1,6 +1,7 @@
 package PodcastView;
 
 import PodcastController.PodcastController;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
