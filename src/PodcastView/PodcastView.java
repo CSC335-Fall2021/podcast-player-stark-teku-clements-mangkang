@@ -12,6 +12,7 @@ import PodcastModel.PodcastModel;
 import PodcastModel.PlayUpdate;
 import PodcastModel.PlaylistUpdate;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -31,6 +32,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
@@ -39,6 +42,7 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 @SuppressWarnings("deprecation")
 public class PodcastView extends Application implements Observer {
@@ -49,6 +53,11 @@ public class PodcastView extends Application implements Observer {
 	private TableView<PodcastEpisode> podcastList;
 	private Label headerLabel;
 	private ChoiceBox<PodcastFeed> feedSelector;
+	private Slider timeSlider;
+	private Duration duration;
+	private Label curTimeLabel;
+	private Label totalTimeLabel;
+	private boolean isTempPaused;
 
 	@Override
 	public void start(Stage arg0) throws Exception {
@@ -132,9 +141,12 @@ public class PodcastView extends Application implements Observer {
 			}
 		});
 
-		Slider timeSlider = new Slider();
-		timeSlider.setMinWidth(200);
-		timeSlider.setPadding(new Insets(10, 0, 10, 0));
+		createSlider();
+		
+		Pane timeLabelsSpace = new Pane();
+		HBox.setHgrow(timeLabelsSpace, Priority.ALWAYS);
+		
+		HBox timeLabelHBox = new HBox(curTimeLabel, timeLabelsSpace, totalTimeLabel);
 
 		// Podcast Feed Selector
 		Label feedSelectorLabel = new Label("Podcast: ");
@@ -147,7 +159,7 @@ public class PodcastView extends Application implements Observer {
 			changePlaylist(feedSelector.getSelectionModel().getSelectedItem());
 		});
 
-		VBox player = new VBox(10, timeSlider, feedSelectorBox, podcastList);
+		VBox player = new VBox(10, timeSlider, timeLabelHBox, feedSelectorBox, podcastList);
 		player.setPadding(new Insets(10, 10, 10, 10));
 
 		Button playButton = new Button("Play");
@@ -194,6 +206,55 @@ public class PodcastView extends Application implements Observer {
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
 	}
+	
+	private void createSlider() {
+		timeSlider = new Slider();
+		timeSlider.setMinWidth(200);
+		timeSlider.setPadding(new Insets(10, 0, 0, 0));
+		timeSlider.setDisable(true);
+		
+		timeSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
+			double currentSecs = oldValue.doubleValue();
+			double clickedSecs = newValue.doubleValue();
+			// So that the progress bar's movement doesn't scrub the episode.
+			if (Math.abs(currentSecs - clickedSecs) > 0.5) {
+				option.seek(Duration.seconds(newValue.doubleValue()));
+			}
+		});
+		
+		timeSlider.setOnMouseDragged((event) -> {
+			Status playerStatus = option.getStatus();
+			if (playerStatus.equals(Status.PLAYING) || playerStatus.equals(Status.STOPPED)) {
+				option.pause();
+				isTempPaused = true;
+			}
+			Duration draggedTime = Duration.seconds(timeSlider.getValue());
+	    	curTimeLabel.setText(getTimeStr(draggedTime));
+		});
+		
+		timeSlider.setOnMouseReleased((event) -> {
+			option.seek(Duration.seconds(timeSlider.getValue()));
+			if (isTempPaused) {
+				option.play();
+				isTempPaused = false;
+			}
+		});
+		
+		curTimeLabel = new Label("0:00");
+		totalTimeLabel = new Label("0:00");
+	}
+	
+	private String getTimeStr(Duration time) {
+		int minutes = (int) time.toMinutes();
+    	int seconds = (int) (time.toSeconds() % 60);
+    	
+    	String timeStr = String.format("%d:%02d", minutes, seconds);
+    	if (minutes >= 60) {
+    		timeStr = String.format("%d:%02d:%02d", minutes / 60, minutes % 60, seconds);
+    	}
+    	return timeStr;
+	}
+
 
 	@Override
 	public void update(Observable o, Object arg) {
@@ -217,6 +278,14 @@ public class PodcastView extends Application implements Observer {
 				Media currentMedia = new Media(playEpisode.getEpisode().getMediaURL());
 				headerLabel.setText("Loading: " + playEpisode.getEpisode().getTitle());
 				option = new MediaPlayer(currentMedia);
+				timeSlider.setDisable(true);
+
+				option.play();
+				
+				option.setAutoPlay(false);
+				
+				timeSlider.setValue(0);
+				totalTimeLabel.setText("0:00");
 
 				option.setOnPlaying(() -> {
 					headerLabel.setText(playEpisode.getEpisode().getTitle());
@@ -225,11 +294,33 @@ public class PodcastView extends Application implements Observer {
 				option.setOnError(() -> {
 					showErrorMessage("An unexpected error was encountered when playing the selected podcast.");
 				});
-				option.setAutoPlay(false);
-				option.play();
+				
+				initPlayerListeners();
 			}
 		}
 
+	}
+	
+	private void initPlayerListeners() {
+		option.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
+			Platform.runLater(() -> {
+		    	if (!timeSlider.isDisabled() && !timeSlider.isValueChanging()) {
+		              timeSlider.setValue(newTime.toSeconds());
+		    	}
+		    	curTimeLabel.setText((getTimeStr(newTime)));
+			});
+		});
+		
+		option.totalDurationProperty().addListener((obs, oldDuration, newDuration) -> {
+	    	timeSlider.setDisable(false);
+	    	timeSlider.setMax(newDuration.toSeconds());
+			duration = newDuration;
+	    	totalTimeLabel.setText((getTimeStr(duration)));
+		});
+		
+		option.setOnEndOfMedia(() -> {
+			option.stop();
+		});
 	}
 
 	/**
