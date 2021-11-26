@@ -58,6 +58,7 @@ public class PodcastView extends Application implements Observer {
 	@Override
 	public void start(Stage arg0) throws Exception {
 		PodcastModel model = new PodcastModel();
+		
 		controller = new PodcastController(model);
 		model.addObserver(this);
 
@@ -121,6 +122,7 @@ public class PodcastView extends Application implements Observer {
 		titleCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("title"));
 		titleCol.setMinWidth(650);
 		TableColumn<PodcastEpisode, String> listenedCol = new TableColumn<PodcastEpisode, String>("Listened");
+		TableColumn<PodcastEpisode, String> downloadedCol = new TableColumn<PodcastEpisode, String>("Downloaded");
 		listenedCol.setCellValueFactory(cellData -> {
 			cellData.getTableColumn().setStyle("-fx-alignment: CENTER;");
 			if (cellData.getValue().getListenedTo()) {
@@ -140,6 +142,7 @@ public class PodcastView extends Application implements Observer {
 		podcastList.getColumns().add(listenedCol);
 		podcastList.getColumns().add(publishDateCol);
 		podcastList.getColumns().add(durationCol);
+		podcastList.getColumns().add(downloadedCol);
 
 		// Event handler for when podcast episode is double clicked
 		podcastList.setOnMouseClicked((event) -> {
