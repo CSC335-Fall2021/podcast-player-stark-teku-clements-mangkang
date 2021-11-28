@@ -1,7 +1,9 @@
 package PodcastView;
 
 import java.io.FileNotFoundException;
+
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -9,9 +11,9 @@ import PodcastController.PodcastController;
 import PodcastEntry.PodcastEpisode;
 import PodcastEntry.PodcastFeed;
 import PodcastModel.PodcastModel;
+import PodcastModel.DownloadEpisode;
 import PodcastModel.PlayUpdate;
 import PodcastModel.PlaylistUpdate;
-import PodcastModel.PodcastEpisodeDownloader;
 import javafx.application.Application;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleStringProperty;
@@ -225,8 +227,26 @@ public class PodcastView extends Application implements Observer {
 		});
 		
 		download.setOnMouseClicked( (click) -> {
-			  String url = podcastList.getSelectionModel().getSelectedItem().getLink();
-		      PodcastEpisodeDownloader obj = new PodcastEpisodeDownloader(url);
+			   
+		      try {
+		    	  String url = podcastList.getSelectionModel().getSelectedItem().getMediaURL();
+				  String name = podcastList.getSelectionModel().getSelectedItem().getTitle();
+				  DownloadEpisode obj = new DownloadEpisode(url,name);
+				
+				
+				Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setTitle("Error!");
+				alert.setContentText("Download is complete!");
+				alert.showAndWait(); 
+				
+				
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 	}
 
