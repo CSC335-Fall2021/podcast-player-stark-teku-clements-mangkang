@@ -11,6 +11,7 @@ import PodcastEntry.PodcastFeed;
 import PodcastModel.PodcastModel;
 import PodcastModel.PlayUpdate;
 import PodcastModel.PlaylistUpdate;
+import PodcastModel.PodcastEpisodeDownloader;
 import javafx.application.Application;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.SimpleStringProperty;
@@ -131,6 +132,7 @@ public class PodcastView extends Application implements Observer {
 				return new SimpleStringProperty("");
 			}
 		});
+  
 		listenedCol.setMinWidth(10);
 		TableColumn<PodcastEpisode, String> publishDateCol = new TableColumn<PodcastEpisode, String>("Date Published");
 		publishDateCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("publishDate"));
@@ -138,6 +140,7 @@ public class PodcastView extends Application implements Observer {
 		TableColumn<PodcastEpisode, String> durationCol = new TableColumn<PodcastEpisode, String>("Duration");
 		durationCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("duration"));
 		durationCol.setMinWidth(90);
+		
 		podcastList.getColumns().add(titleCol);
 		podcastList.getColumns().add(listenedCol);
 		podcastList.getColumns().add(publishDateCol);
@@ -222,7 +225,8 @@ public class PodcastView extends Application implements Observer {
 		});
 		
 		download.setOnMouseClicked( (click) -> {
-	      
+			  String url = podcastList.getSelectionModel().getSelectedItem().getLink();
+		      PodcastEpisodeDownloader obj = new PodcastEpisodeDownloader(url);
 		});
 	}
 
