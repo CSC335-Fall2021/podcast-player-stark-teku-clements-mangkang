@@ -185,8 +185,6 @@ public class PodcastView extends Application implements Observer {
 		VBox player = new VBox(10, timeSlider, feedSelectorBox, podcastList);
 		player.setPadding(new Insets(10, 10, 10, 10));
 
-		
-		//Button pauseButton = new Button("Pause");
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
 		Button download = new Button ("Download");
@@ -200,11 +198,7 @@ public class PodcastView extends Application implements Observer {
 
 		obj.setCenter(player);
         
-		
-		 
-		
 		volumeBar = new Slider();
-		//HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack, download,volumeBar);
 		HBox buttonBar = new HBox(20, previousTrack, playPauseButton, nextTrack, download,volumeBar);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
@@ -214,6 +208,7 @@ public class PodcastView extends Application implements Observer {
 			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() - 1) % numberOfEpisodes;
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			playPauseButton.setText("Pause");
 		});
 
 		playPauseButton.setOnMouseClicked((click) -> {
@@ -236,20 +231,12 @@ public class PodcastView extends Application implements Observer {
 			
 		});
 
-		//pauseButton.setOnMouseClicked((click) -> {
-		 
-		//	if (option.getStatus() == Status.PLAYING) {
-		//	option.pause();
-		//	} else {
-		//		option.play();
-		//	}
-		//});
-
 		nextTrack.setOnMouseClicked((click) -> {
 			int numberOfEpisodes = podcastList.getItems().size();
 			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() + 1) % numberOfEpisodes;
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			playPauseButton.setText("Pause");
 		});
 		
 		download.setOnMouseClicked( (click) -> {
