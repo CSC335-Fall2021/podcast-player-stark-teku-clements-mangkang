@@ -2,6 +2,7 @@ package PodcastView;
 
 import java.io.FileNotFoundException;
 
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Observable;
@@ -57,10 +58,13 @@ public class PodcastView extends Application implements Observer {
 	private Label headerLabel;
 	private ChoiceBox<PodcastFeed> feedSelector;
 	private Slider volumeBar;
+	// True if the track is changed and false if current track is being manipulated
+	private boolean isTrackNew; 
 
 	@Override
 	public void start(Stage arg0) throws Exception {
 		PodcastModel model = new PodcastModel();
+		
 		
 		controller = new PodcastController(model);
 		model.addObserver(this);
@@ -73,6 +77,9 @@ public class PodcastView extends Application implements Observer {
 
 		// Load saved feeds
 		controller.loadFeeds();
+		
+		// Initially set track to new
+		isTrackNew = true;
 
 		// Show the UI
 		Scene display = new Scene(root);
@@ -175,8 +182,8 @@ public class PodcastView extends Application implements Observer {
 		VBox player = new VBox(10, timeSlider, feedSelectorBox, podcastList);
 		player.setPadding(new Insets(10, 10, 10, 10));
 
-		Button playButton = new Button("Play");
-		Button pauseButton = new Button("Pause");
+		Button playPauseButton = new Button("Play");
+		//Button pauseButton = new Button("Pause");
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
 		Button download = new Button ("Download");
@@ -194,7 +201,8 @@ public class PodcastView extends Application implements Observer {
 		 
 		
 		volumeBar = new Slider();
-		HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack, download,volumeBar);
+		//HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack, download,volumeBar);
+		HBox buttonBar = new HBox(20, previousTrack, playPauseButton, nextTrack, download,volumeBar);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
 
@@ -205,19 +213,34 @@ public class PodcastView extends Application implements Observer {
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 		});
 
-		playButton.setOnMouseClicked((click) -> {
+		playPauseButton.setOnMouseClicked((click) -> {
 			 
-			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			if (isTrackNew == true) {
+				playPauseButton.setText("Pause");
+				controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			}
+			else {
+				if (option.getStatus() == Status.PLAYING) {
+					option.pause();
+					playPauseButton.setText("Play");
+					
+				}
+				else {
+					option.play();
+					playPauseButton.setText("Pause");
+				}
+			}
+			
 		});
 
-		pauseButton.setOnMouseClicked((click) -> {
+		//pauseButton.setOnMouseClicked((click) -> {
 		 
-			if (option.getStatus() == Status.PLAYING) {
-				option.pause();
-			} else {
-				option.play();
-			}
-		});
+		//	if (option.getStatus() == Status.PLAYING) {
+		//	option.pause();
+		//	} else {
+		//		option.play();
+		//	}
+		//});
 
 		nextTrack.setOnMouseClicked((click) -> {
 			int numberOfEpisodes = podcastList.getItems().size();
@@ -305,6 +328,7 @@ public class PodcastView extends Application implements Observer {
 	 * @param feed The PodcastFeed to add to the list
 	 */
 	private void updatePlaylist(PodcastFeed feed) {
+		isTrackNew = false;
 		feedSelector.getItems().addAll(feed);
 		if (feedSelector.getSelectionModel().getSelectedItem() == null) {
 			feedSelector.getSelectionModel().select(feed);
