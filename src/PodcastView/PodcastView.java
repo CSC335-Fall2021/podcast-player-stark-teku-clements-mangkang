@@ -214,8 +214,14 @@ public class PodcastView extends Application implements Observer {
 		playPauseButton.setOnMouseClicked((click) -> {
 			 
 			if (isTrackNew == true) {
-				playPauseButton.setText("Pause");
-				controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+				try {
+					controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+					playPauseButton.setText("Pause");
+				}
+				catch (NullPointerException e){
+					showErrorMessage("Select a podcast before you play!");
+				}
+				
 			}
 			else {
 				if (option.getStatus() == Status.PLAYING) {
