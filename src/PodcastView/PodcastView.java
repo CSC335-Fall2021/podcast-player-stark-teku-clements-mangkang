@@ -155,11 +155,14 @@ public class PodcastView extends Application implements Observer {
 		podcastList.getColumns().add(publishDateCol);
 		podcastList.getColumns().add(durationCol);
 		podcastList.getColumns().add(downloadedCol);
+		
+		Button playPauseButton = new Button("Play");
 
 		// Event handler for when podcast episode is double clicked
 		podcastList.setOnMouseClicked((event) -> {
 			if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
 				controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+				playPauseButton.setText("Pause");
 			}
 		});
 
@@ -182,7 +185,7 @@ public class PodcastView extends Application implements Observer {
 		VBox player = new VBox(10, timeSlider, feedSelectorBox, podcastList);
 		player.setPadding(new Insets(10, 10, 10, 10));
 
-		Button playPauseButton = new Button("Play");
+		
 		//Button pauseButton = new Button("Pause");
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
@@ -275,6 +278,7 @@ public class PodcastView extends Application implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		isTrackNew = false;
 		// New set of episodes for a feed
 		if (arg.getClass() == PlaylistUpdate.class) {
 			PlaylistUpdate playlistChange = (PlaylistUpdate) arg;
@@ -328,7 +332,6 @@ public class PodcastView extends Application implements Observer {
 	 * @param feed The PodcastFeed to add to the list
 	 */
 	private void updatePlaylist(PodcastFeed feed) {
-		isTrackNew = false;
 		feedSelector.getItems().addAll(feed);
 		if (feedSelector.getSelectionModel().getSelectedItem() == null) {
 			feedSelector.getSelectionModel().select(feed);
