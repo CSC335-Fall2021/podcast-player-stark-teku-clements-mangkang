@@ -62,7 +62,6 @@ public class PodcastView extends Application implements Observer {
 	private Label headerLabel;
 	private ChoiceBox<PodcastFeed> feedSelector;
 	private Slider timeSlider;
-	private Duration duration;
 	private Label curTimeLabel;
 	private Label totalTimeLabel;
 	private boolean isTempPaused;
@@ -175,7 +174,7 @@ public class PodcastView extends Application implements Observer {
 			}
 		});
 
-		createSlider();
+		createProgressBar();
 		
 		Pane timeLabelsSpace = new Pane();
 		HBox.setHgrow(timeLabelsSpace, Priority.ALWAYS);
@@ -281,7 +280,18 @@ public class PodcastView extends Application implements Observer {
 		});
 	}
 	
-	private void createSlider() {
+	
+	/**
+	 * Initializes the progress bar and its event listeners. The first listener detects if the
+	 * user clicks at a different position at least 0.5 seconds away from the current position and
+	 * seeks to the clicked position if that's the case. The second listener pauses the episode
+	 * if the progress bar is currently being dragged and also updates the displayed current timestamp
+	 * as it is being dragged. The third listener seeks the episode to the new position and resumes
+	 * the episode when the progress bar is released. The third listener doesn't resume the episode if
+	 * it wasn't playing while it was being dragged. Lastly, the method displays two timestamp labels:
+	 * one for the current timestamp of the current episode and one for the total duration of it.
+	 */
+	private void createProgressBar() {
 		timeSlider = new Slider();
 		timeSlider.setMinWidth(200);
 		timeSlider.setPadding(new Insets(10, 0, 0, 0));
@@ -318,6 +328,21 @@ public class PodcastView extends Application implements Observer {
 		totalTimeLabel = new Label("0:00");
 	}
 	
+	
+	/**
+	 * Returns a String of a given Duration object representing
+	 * a timestamp. The returned String is formatted as "H:M:S" if the timestamp
+	 * is at least an hour long, or "M:S" if not. "H" represents the number of hours
+	 * of the timestamp, "M" represents the number of minutes of the timestamp, and "S"
+	 * represents the number of seconds of the timestamp. In both the "H:M:S" and the "M:S"
+	 * format, if the number of seconds of the timestamp is less than 10, there'll be a "0"
+	 * to the left of the "S" in both formats. In the "H:M:S" format, if the number of minutes
+	 * of the timestamp is less than 10, there'll be a "0" to the left of the "M" in that format.
+	 * 
+	 * @param time a Duration object representing a given timestamp
+	 * @return a String that represents a timestamp and has the format "H:M:S" if the timestamp
+	 * is at least an hour long, or "M:S" if not.
+	 */
 	private String getTimeStr(Duration time) {
 		int minutes = (int) time.toMinutes();
     	int seconds = (int) (time.toSeconds() % 60);
@@ -381,14 +406,26 @@ public class PodcastView extends Application implements Observer {
 					showErrorMessage("An unexpected error was encountered when playing the selected podcast.");
 				});
 				
-				initPlayerSliderListeners();
+				option.setOnEndOfMedia(() -> {
+					option.stop();
+				});
+				
+				updateProgBarEpisodeListeners();
 			}
 		}
 		
 
 	}
 	
-	private void initPlayerSliderListeners() {
+	/**
+	 * Reinitializes the media player's event listeners every time the current episode 
+	 * of the media player changes. The first event listener changes the displayed current
+	 * timestamp of the episode and the progress bar's position, as the current episode is playing.
+	 * Once the current episode is ready to be played, the second event listener enables the progress
+	 * bar, sets the maximum value of the progress bar to the duration of the current episode, and
+	 * resets the displayed duration timestamp to the new current episode's duration.
+	 */
+	private void updateProgBarEpisodeListeners() {
 		option.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
 			Platform.runLater(() -> {
 		    	if (!timeSlider.isDisabled() && !timeSlider.isValueChanging()) {
@@ -401,12 +438,7 @@ public class PodcastView extends Application implements Observer {
 		option.totalDurationProperty().addListener((obs, oldDuration, newDuration) -> {
 	    	timeSlider.setDisable(false);
 	    	timeSlider.setMax(newDuration.toSeconds());
-			duration = newDuration;
-	    	totalTimeLabel.setText((getTimeStr(duration)));
-		});
-		
-		option.setOnEndOfMedia(() -> {
-			option.stop();
+	    	totalTimeLabel.setText((getTimeStr(newDuration)));
 		});
 	}
 
