@@ -1,7 +1,10 @@
 package PodcastView;
 
 import java.io.FileNotFoundException;
+
+
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -9,6 +12,7 @@ import PodcastController.PodcastController;
 import PodcastEntry.PodcastEpisode;
 import PodcastEntry.PodcastFeed;
 import PodcastModel.PodcastModel;
+import PodcastModel.DownloadEpisode;
 import PodcastModel.PlayUpdate;
 import PodcastModel.PlaylistUpdate;
 import javafx.application.Application;
@@ -63,10 +67,13 @@ public class PodcastView extends Application implements Observer {
 	private Label totalTimeLabel;
 	private boolean isTempPaused;
 	private Slider volumeBar;
+	// True if the track is changed and false if current track is being manipulated
+	private boolean isTrackNew; 
 
 	@Override
 	public void start(Stage arg0) throws Exception {
 		PodcastModel model = new PodcastModel();
+		
 		
 		controller = new PodcastController(model);
 		model.addObserver(this);
@@ -79,6 +86,9 @@ public class PodcastView extends Application implements Observer {
 
 		// Load saved feeds
 		controller.loadFeeds();
+		
+		// Initially set track to new
+		isTrackNew = true;
 
 		// Show the UI
 		Scene display = new Scene(root);
@@ -140,6 +150,7 @@ public class PodcastView extends Application implements Observer {
 				return new SimpleStringProperty("");
 			}
 		});
+  
 		listenedCol.setMinWidth(10);
 		TableColumn<PodcastEpisode, String> publishDateCol = new TableColumn<PodcastEpisode, String>("Date Published");
 		publishDateCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("publishDate"));
@@ -147,16 +158,20 @@ public class PodcastView extends Application implements Observer {
 		TableColumn<PodcastEpisode, String> durationCol = new TableColumn<PodcastEpisode, String>("Duration");
 		durationCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("duration"));
 		durationCol.setMinWidth(90);
+		
 		podcastList.getColumns().add(titleCol);
 		podcastList.getColumns().add(listenedCol);
 		podcastList.getColumns().add(publishDateCol);
 		podcastList.getColumns().add(durationCol);
 		podcastList.getColumns().add(downloadedCol);
+		
+		Button playPauseButton = new Button("Play");
 
 		// Event handler for when podcast episode is double clicked
 		podcastList.setOnMouseClicked((event) -> {
 			if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
 				controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+				playPauseButton.setText("Pause");
 			}
 		});
 
@@ -182,8 +197,6 @@ public class PodcastView extends Application implements Observer {
 		VBox player = new VBox(10, timeSlider, timeLabelHBox, feedSelectorBox, podcastList);
 		player.setPadding(new Insets(10, 10, 10, 10));
 
-		Button playButton = new Button("Play");
-		Button pauseButton = new Button("Pause");
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
 		Button download = new Button ("Download");
@@ -197,11 +210,8 @@ public class PodcastView extends Application implements Observer {
 
 		obj.setCenter(player);
         
-		
-		 
-		
 		volumeBar = new Slider();
-		HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack, download,volumeBar);
+		HBox buttonBar = new HBox(20, previousTrack, playPauseButton, nextTrack, download,volumeBar);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
 
@@ -210,20 +220,33 @@ public class PodcastView extends Application implements Observer {
 			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() - 1) % numberOfEpisodes;
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			playPauseButton.setText("Pause");
 		});
 
-		playButton.setOnMouseClicked((click) -> {
+		playPauseButton.setOnMouseClicked((click) -> {
 			 
-			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
-		});
-
-		pauseButton.setOnMouseClicked((click) -> {
-		 
-			if (option.getStatus() == Status.PLAYING) {
-				option.pause();
-			} else {
-				option.play();
+			if (isTrackNew == true) {
+				try {
+					controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+					playPauseButton.setText("Pause");
+				}
+				catch (NullPointerException e){
+					showErrorMessage("Select a podcast before you play!");
+				}
+				
 			}
+			else {
+				if (option.getStatus() == Status.PLAYING) {
+					option.pause();
+					playPauseButton.setText("Play");
+					
+				}
+				else {
+					option.play();
+					playPauseButton.setText("Pause");
+				}
+			}
+			
 		});
 
 		nextTrack.setOnMouseClicked((click) -> {
@@ -231,10 +254,30 @@ public class PodcastView extends Application implements Observer {
 			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() + 1) % numberOfEpisodes;
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			playPauseButton.setText("Pause");
 		});
 		
 		download.setOnMouseClicked( (click) -> {
-	      
+			   
+		      try {
+		    	  String url = podcastList.getSelectionModel().getSelectedItem().getMediaURL();
+				  String name = podcastList.getSelectionModel().getSelectedItem().getTitle();
+				  DownloadEpisode obj = new DownloadEpisode(url,name);
+				
+				
+				Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setTitle("Error!");
+				alert.setContentText("Download is complete!");
+				alert.showAndWait(); 
+				
+				
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 	}
 	
@@ -289,6 +332,7 @@ public class PodcastView extends Application implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		isTrackNew = false;
 		// New set of episodes for a feed
 		if (arg.getClass() == PlaylistUpdate.class) {
 			PlaylistUpdate playlistChange = (PlaylistUpdate) arg;
