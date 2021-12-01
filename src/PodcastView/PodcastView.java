@@ -2,6 +2,7 @@ package PodcastView;
 
 import java.io.FileNotFoundException;
 
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Observable;
@@ -57,10 +58,13 @@ public class PodcastView extends Application implements Observer {
 	private Label headerLabel;
 	private ChoiceBox<PodcastFeed> feedSelector;
 	private Slider volumeBar;
+	// True if the track is changed and false if current track is being manipulated
+	private boolean isTrackNew; 
 
 	@Override
 	public void start(Stage arg0) throws Exception {
 		PodcastModel model = new PodcastModel();
+		
 		
 		controller = new PodcastController(model);
 		model.addObserver(this);
@@ -73,6 +77,9 @@ public class PodcastView extends Application implements Observer {
 
 		// Load saved feeds
 		controller.loadFeeds();
+		
+		// Initially set track to new
+		isTrackNew = true;
 
 		// Show the UI
 		Scene display = new Scene(root);
@@ -148,11 +155,14 @@ public class PodcastView extends Application implements Observer {
 		podcastList.getColumns().add(publishDateCol);
 		podcastList.getColumns().add(durationCol);
 		podcastList.getColumns().add(downloadedCol);
+		
+		Button playPauseButton = new Button("Play");
 
 		// Event handler for when podcast episode is double clicked
 		podcastList.setOnMouseClicked((event) -> {
 			if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
 				controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+				playPauseButton.setText("Pause");
 			}
 		});
 
@@ -175,8 +185,6 @@ public class PodcastView extends Application implements Observer {
 		VBox player = new VBox(10, timeSlider, feedSelectorBox, podcastList);
 		player.setPadding(new Insets(10, 10, 10, 10));
 
-		Button playButton = new Button("Play");
-		Button pauseButton = new Button("Pause");
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
 		Button download = new Button ("Download");
@@ -190,11 +198,8 @@ public class PodcastView extends Application implements Observer {
 
 		obj.setCenter(player);
         
-		
-		 
-		
 		volumeBar = new Slider();
-		HBox buttonBar = new HBox(20, previousTrack, playButton, pauseButton, nextTrack, download,volumeBar);
+		HBox buttonBar = new HBox(20, previousTrack, playPauseButton, nextTrack, download,volumeBar);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
 
@@ -203,20 +208,33 @@ public class PodcastView extends Application implements Observer {
 			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() - 1) % numberOfEpisodes;
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			playPauseButton.setText("Pause");
 		});
 
-		playButton.setOnMouseClicked((click) -> {
+		playPauseButton.setOnMouseClicked((click) -> {
 			 
-			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
-		});
-
-		pauseButton.setOnMouseClicked((click) -> {
-		 
-			if (option.getStatus() == Status.PLAYING) {
-				option.pause();
-			} else {
-				option.play();
+			if (isTrackNew == true) {
+				try {
+					controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+					playPauseButton.setText("Pause");
+				}
+				catch (NullPointerException e){
+					showErrorMessage("Select a podcast before you play!");
+				}
+				
 			}
+			else {
+				if (option.getStatus() == Status.PLAYING) {
+					option.pause();
+					playPauseButton.setText("Play");
+					
+				}
+				else {
+					option.play();
+					playPauseButton.setText("Pause");
+				}
+			}
+			
 		});
 
 		nextTrack.setOnMouseClicked((click) -> {
@@ -224,6 +242,7 @@ public class PodcastView extends Application implements Observer {
 			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() + 1) % numberOfEpisodes;
 			podcastList.getSelectionModel().select(nextInd);
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			playPauseButton.setText("Pause");
 		});
 		
 		download.setOnMouseClicked( (click) -> {
@@ -252,6 +271,7 @@ public class PodcastView extends Application implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		isTrackNew = false;
 		// New set of episodes for a feed
 		if (arg.getClass() == PlaylistUpdate.class) {
 			PlaylistUpdate playlistChange = (PlaylistUpdate) arg;
