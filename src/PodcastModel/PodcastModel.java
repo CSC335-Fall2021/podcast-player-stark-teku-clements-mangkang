@@ -27,6 +27,7 @@ public class PodcastModel extends Observable {
 		nowPlaying = null;
 	}
 
+	
 	/**
 	 * Attempts to add a new feed to our list of followed podcast feeds
 	 * 
