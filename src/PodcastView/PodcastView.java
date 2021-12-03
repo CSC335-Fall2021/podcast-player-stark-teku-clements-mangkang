@@ -192,7 +192,16 @@ public class PodcastView extends Application implements Observer {
 			controller.removePodcastFeed(feedSelector.getSelectionModel().getSelectedItem());
 		});
 
-		HBox feedSelectorBox = new HBox(10, feedSelectorLabel, feedSelector, removeFeedBtn);
+		// Podcast Feed Info Button
+		Button feedInfoBtn = new Button("?");
+		feedInfoBtn.setTooltip(new Tooltip("Podcast Feed Info"));
+		feedInfoBtn.setOnMouseClicked((click) -> {
+			if (feedSelector.getSelectionModel().getSelectedItem() != null) {
+				new FeedInfoWindow(feedSelector.getSelectionModel().getSelectedItem());
+			}
+		});
+
+		HBox feedSelectorBox = new HBox(10, feedSelectorLabel, feedSelector, feedInfoBtn, removeFeedBtn);
 		feedSelectorBox.setAlignment(Pos.CENTER);
 
 		// Event handler
