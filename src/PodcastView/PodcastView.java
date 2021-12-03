@@ -56,12 +56,13 @@ public class PodcastView extends Application implements Observer {
 
 	private BorderPane obj;
 	private MediaPlayer option;
-	private Media selected;
 	private PodcastController controller;
 	private TableView<PodcastEpisode> podcastList;
 	private Label headerLabel;
 	private ChoiceBox<PodcastFeed> feedSelector;
 	private Slider timeSlider;
+	private Button removeFeedBtn;
+	private Button feedInfoBtn;
 	private Label curTimeLabel;
 	private Label totalTimeLabel;
 	private boolean isTempPaused;
@@ -186,14 +187,14 @@ public class PodcastView extends Application implements Observer {
 		feedSelector.setMinWidth(200);
 
 		// Podcast Feed Removal Button
-		Button removeFeedBtn = new Button("X");
+		removeFeedBtn = new Button("X");
 		removeFeedBtn.setTooltip(new Tooltip("Remove podcast feed"));
 		removeFeedBtn.setOnMouseClicked((click) -> {
 			controller.removePodcastFeed(feedSelector.getSelectionModel().getSelectedItem());
 		});
 
 		// Podcast Feed Info Button
-		Button feedInfoBtn = new Button("?");
+		feedInfoBtn = new Button("?");
 		feedInfoBtn.setTooltip(new Tooltip("Podcast Feed Info"));
 		feedInfoBtn.setOnMouseClicked((click) -> {
 			if (feedSelector.getSelectionModel().getSelectedItem() != null) {
@@ -483,6 +484,8 @@ public class PodcastView extends Application implements Observer {
 				changePlaylist(feed);
 			}
 		}
+		
+		updateFeedButtonEnables();
 	}
 
 	/**
@@ -497,6 +500,16 @@ public class PodcastView extends Application implements Observer {
 				feedSelector.getSelectionModel().select(0);
 			}
 		}
+		
+		updateFeedButtonEnables();
+	}
+	
+	/**
+	 * Enables or disables the feed buttons to match feed selector state
+	 */
+	private void updateFeedButtonEnables() {
+		removeFeedBtn.setDisable(feedSelector.getItems().isEmpty());
+		feedInfoBtn.setDisable(feedSelector.getItems().isEmpty());
 	}
 
 	/**
