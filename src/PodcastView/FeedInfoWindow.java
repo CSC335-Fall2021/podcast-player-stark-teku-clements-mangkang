@@ -16,11 +16,21 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+/**
+ * Window for displaying info about a podcast feed
+ * 
+ * @author Michael Stark
+ */
 public class FeedInfoWindow extends Stage {
 
 	private ImageView imageView;
 	private Image img;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param feed The PodcastFeed whose info will be displayed
+	 */
 	public FeedInfoWindow(PodcastFeed feed) {
 		Stage newFeedDialog = new Stage();
 		GridPane pane = new GridPane();
