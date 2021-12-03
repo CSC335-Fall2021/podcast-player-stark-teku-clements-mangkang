@@ -31,7 +31,7 @@ public class PodcastController {
 	public boolean addPodcastFeed(String url) {
 		return myModel.addFeed(url);
 	}
-	
+
 	/**
 	 * Removes a feed from the list of followed podcasts
 	 * 
@@ -39,6 +39,15 @@ public class PodcastController {
 	 */
 	public void removePodcastFeed(PodcastFeed f) {
 		myModel.removeFeed(f);
+	}
+
+	/**
+	 * Adds a PodcastEpisode to the favorites playlist
+	 * 
+	 * @param e
+	 */
+	public void addFavorite(PodcastEpisode e) {
+		myModel.addFavorite(e);
 	}
 
 	/**

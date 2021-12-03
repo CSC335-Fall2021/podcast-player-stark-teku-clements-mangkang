@@ -207,6 +207,15 @@ public class PodcastView extends Application implements Observer {
 		Button previousTrack = new Button("Previous Track");
 		Button download = new Button("Download");
 
+		// Favorite Button
+		Button favoriteBtn = new Button("<3");
+		favoriteBtn.setTooltip(new Tooltip("Favorite Episode"));
+		favoriteBtn.setOnMouseClicked((click) -> {
+			if (podcastList.getSelectionModel().getSelectedItem() != null) {
+				controller.addFavorite(podcastList.getSelectionModel().getSelectedItem());
+			}
+		});
+
 		headerLabel = new Label("Welcome to our Podcast Player");
 		headerLabel.setFont(Font.font("Helvetica", FontWeight.EXTRA_BOLD, 30));
 		BorderPane.setAlignment(headerLabel, Pos.CENTER);
@@ -216,7 +225,7 @@ public class PodcastView extends Application implements Observer {
 		obj.setCenter(player);
 
 		volumeBar = new Slider();
-		HBox buttonBar = new HBox(20, previousTrack, playPauseButton, nextTrack, download, volumeBar);
+		HBox buttonBar = new HBox(20, previousTrack, playPauseButton, nextTrack, favoriteBtn, download, volumeBar);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
 
@@ -454,7 +463,12 @@ public class PodcastView extends Application implements Observer {
 	 */
 	private void addPlaylist(PodcastFeed feed) {
 		if (!feedSelector.getItems().contains(feed)) {
-			feedSelector.getItems().addAll(feed);
+			if (feed.getURL().equalsIgnoreCase("favorite")) {
+				feedSelector.getItems().add(0, feed);
+			} else {
+				feedSelector.getItems().addAll(feed);
+			}
+
 			if (feedSelector.getSelectionModel().getSelectedItem() == null) {
 				feedSelector.getSelectionModel().select(feed);
 				changePlaylist(feed);

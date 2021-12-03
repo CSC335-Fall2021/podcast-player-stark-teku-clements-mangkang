@@ -19,6 +19,7 @@ import java.util.Observable;
 @SuppressWarnings("deprecation")
 public class PodcastModel extends Observable {
 	private ArrayList<PodcastFeed> followedFeeds;
+	private PodcastFeed favoriteEpisodes;
 	private PodcastEpisode nowPlaying;
 
 	/**
@@ -59,6 +60,25 @@ public class PodcastModel extends Observable {
 		followedFeeds.remove(f);
 		setChanged();
 		notifyObservers(new PlaylistUpdate(f, true));
+	}
+
+	/**
+	 * Adds a PodcastEpisode to the favorites playlist
+	 * 
+	 * @param e
+	 */
+	public void addFavorite(PodcastEpisode e) {
+		if (e != null) {
+			if (favoriteEpisodes == null) {
+				favoriteEpisodes = new PodcastFeed("favorite", "Favorites", "My favorite podcast episodes", "", "", "",
+						"");
+				followedFeeds.add(0, favoriteEpisodes);
+			}
+
+			favoriteEpisodes.addEpisode(e);
+			setChanged();
+			notifyObservers(new PlaylistUpdate(favoriteEpisodes));
+		}
 	}
 
 	/**
