@@ -2,7 +2,6 @@ package PodcastView;
 
 import java.io.FileNotFoundException;
 
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Observable;
@@ -32,6 +31,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
@@ -67,13 +67,12 @@ public class PodcastView extends Application implements Observer {
 	private boolean isTempPaused;
 	private Slider volumeBar;
 	// True if the track is changed and false if current track is being manipulated
-	private boolean isTrackNew; 
+	private boolean isTrackNew;
 
 	@Override
 	public void start(Stage arg0) throws Exception {
 		PodcastModel model = new PodcastModel();
-		
-		
+
 		controller = new PodcastController(model);
 		model.addObserver(this);
 
@@ -85,7 +84,7 @@ public class PodcastView extends Application implements Observer {
 
 		// Load saved feeds
 		controller.loadFeeds();
-		
+
 		// Initially set track to new
 		isTrackNew = true;
 
@@ -149,7 +148,7 @@ public class PodcastView extends Application implements Observer {
 				return new SimpleStringProperty("");
 			}
 		});
-  
+
 		listenedCol.setMinWidth(10);
 		TableColumn<PodcastEpisode, String> publishDateCol = new TableColumn<PodcastEpisode, String>("Date Published");
 		publishDateCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("publishDate"));
@@ -157,13 +156,13 @@ public class PodcastView extends Application implements Observer {
 		TableColumn<PodcastEpisode, String> durationCol = new TableColumn<PodcastEpisode, String>("Duration");
 		durationCol.setCellValueFactory(new PropertyValueFactory<PodcastEpisode, String>("duration"));
 		durationCol.setMinWidth(90);
-		
+
 		podcastList.getColumns().add(titleCol);
 		podcastList.getColumns().add(listenedCol);
 		podcastList.getColumns().add(publishDateCol);
 		podcastList.getColumns().add(durationCol);
 		podcastList.getColumns().add(downloadedCol);
-		
+
 		Button playPauseButton = new Button("Play");
 
 		// Event handler for when podcast episode is double clicked
@@ -175,17 +174,25 @@ public class PodcastView extends Application implements Observer {
 		});
 
 		createProgressBar();
-		
+
 		Pane timeLabelsSpace = new Pane();
 		HBox.setHgrow(timeLabelsSpace, Priority.ALWAYS);
-		
+
 		HBox timeLabelHBox = new HBox(curTimeLabel, timeLabelsSpace, totalTimeLabel);
 
 		// Podcast Feed Selector
 		Label feedSelectorLabel = new Label("Podcast: ");
-		MenuBar menuBar = new MenuBar();
 		feedSelector = new ChoiceBox<PodcastFeed>();
-		HBox feedSelectorBox = new HBox(10, feedSelectorLabel, feedSelector);
+		feedSelector.setMinWidth(200);
+
+		// Podcast Feed Removal Button
+		Button removeFeedBtn = new Button("X");
+		removeFeedBtn.setTooltip(new Tooltip("Remove podcast feed"));
+		removeFeedBtn.setOnMouseClicked((click) -> {
+			controller.removePodcastFeed(feedSelector.getSelectionModel().getSelectedItem());
+		});
+
+		HBox feedSelectorBox = new HBox(10, feedSelectorLabel, feedSelector, removeFeedBtn);
 		feedSelectorBox.setAlignment(Pos.CENTER);
 
 		// Event handler
@@ -198,19 +205,18 @@ public class PodcastView extends Application implements Observer {
 
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
-		Button download = new Button ("Download");
-		
-		
+		Button download = new Button("Download");
+
 		headerLabel = new Label("Welcome to our Podcast Player");
-		headerLabel.setFont(Font.font("Helvetica",FontWeight.EXTRA_BOLD, 30));
+		headerLabel.setFont(Font.font("Helvetica", FontWeight.EXTRA_BOLD, 30));
 		BorderPane.setAlignment(headerLabel, Pos.CENTER);
 
 		obj.setTop(headerLabel);
 
 		obj.setCenter(player);
-        
+
 		volumeBar = new Slider();
-		HBox buttonBar = new HBox(20, previousTrack, playPauseButton, nextTrack, download,volumeBar);
+		HBox buttonBar = new HBox(20, previousTrack, playPauseButton, nextTrack, download, volumeBar);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
 
@@ -223,29 +229,26 @@ public class PodcastView extends Application implements Observer {
 		});
 
 		playPauseButton.setOnMouseClicked((click) -> {
-			 
+
 			if (isTrackNew == true) {
 				try {
 					controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 					playPauseButton.setText("Pause");
-				}
-				catch (NullPointerException e){
+				} catch (NullPointerException e) {
 					showErrorMessage("Select a podcast before you play!");
 				}
-				
-			}
-			else {
+
+			} else {
 				if (option.getStatus() == Status.PLAYING) {
 					option.pause();
 					playPauseButton.setText("Play");
-					
-				}
-				else {
+
+				} else {
 					option.play();
 					playPauseButton.setText("Pause");
 				}
 			}
-			
+
 		});
 
 		nextTrack.setOnMouseClicked((click) -> {
@@ -255,21 +258,19 @@ public class PodcastView extends Application implements Observer {
 			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 			playPauseButton.setText("Pause");
 		});
-		
-		download.setOnMouseClicked( (click) -> {
-			   
-		      try {
-		    	  String url = podcastList.getSelectionModel().getSelectedItem().getMediaURL();
-				  String name = podcastList.getSelectionModel().getSelectedItem().getTitle();
-				  DownloadEpisode obj = new DownloadEpisode(url,name);
-				
-				
+
+		download.setOnMouseClicked((click) -> {
+
+			try {
+				String url = podcastList.getSelectionModel().getSelectedItem().getMediaURL();
+				String name = podcastList.getSelectionModel().getSelectedItem().getTitle();
+				DownloadEpisode obj = new DownloadEpisode(url, name);
+
 				Alert alert = new Alert(AlertType.INFORMATION);
 				alert.setTitle("Error!");
 				alert.setContentText("Download is complete!");
-				alert.showAndWait(); 
-				
-				
+				alert.showAndWait();
+
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -279,24 +280,25 @@ public class PodcastView extends Application implements Observer {
 			}
 		});
 	}
-	
-	
+
 	/**
-	 * Initializes the progress bar and its event listeners. The first listener detects if the
-	 * user clicks at a different position at least 0.5 seconds away from the current position and
-	 * seeks to the clicked position if that's the case. The second listener pauses the episode
-	 * if the progress bar is currently being dragged and also updates the displayed current timestamp
-	 * as it is being dragged. The third listener seeks the episode to the new position and resumes
-	 * the episode when the progress bar is released. The third listener doesn't resume the episode if
-	 * it wasn't playing while it was being dragged. Lastly, the method displays two timestamp labels:
-	 * one for the current timestamp of the current episode and one for the total duration of it.
+	 * Initializes the progress bar and its event listeners. The first listener
+	 * detects if the user clicks at a different position at least 0.5 seconds away
+	 * from the current position and seeks to the clicked position if that's the
+	 * case. The second listener pauses the episode if the progress bar is currently
+	 * being dragged and also updates the displayed current timestamp as it is being
+	 * dragged. The third listener seeks the episode to the new position and resumes
+	 * the episode when the progress bar is released. The third listener doesn't
+	 * resume the episode if it wasn't playing while it was being dragged. Lastly,
+	 * the method displays two timestamp labels: one for the current timestamp of
+	 * the current episode and one for the total duration of it.
 	 */
 	private void createProgressBar() {
 		timeSlider = new Slider();
 		timeSlider.setMinWidth(200);
 		timeSlider.setPadding(new Insets(10, 0, 0, 0));
 		timeSlider.setDisable(true);
-		
+
 		timeSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
 			double currentSecs = oldValue.doubleValue();
 			double clickedSecs = newValue.doubleValue();
@@ -305,7 +307,7 @@ public class PodcastView extends Application implements Observer {
 				option.seek(Duration.seconds(newValue.doubleValue()));
 			}
 		});
-		
+
 		timeSlider.setOnMouseDragged((event) -> {
 			Status playerStatus = option.getStatus();
 			if (playerStatus.equals(Status.PLAYING) || playerStatus.equals(Status.STOPPED)) {
@@ -313,9 +315,9 @@ public class PodcastView extends Application implements Observer {
 				isTempPaused = true;
 			}
 			Duration draggedTime = Duration.seconds(timeSlider.getValue());
-	    	curTimeLabel.setText(getTimeStr(draggedTime));
+			curTimeLabel.setText(getTimeStr(draggedTime));
 		});
-		
+
 		timeSlider.setOnMouseReleased((event) -> {
 			option.seek(Duration.seconds(timeSlider.getValue()));
 			if (isTempPaused) {
@@ -323,37 +325,36 @@ public class PodcastView extends Application implements Observer {
 				isTempPaused = false;
 			}
 		});
-		
+
 		curTimeLabel = new Label("0:00");
 		totalTimeLabel = new Label("0:00");
 	}
-	
-	
+
 	/**
-	 * Returns a String of a given Duration object representing
-	 * a timestamp. The returned String is formatted as "H:M:S" if the timestamp
-	 * is at least an hour long, or "M:S" if not. "H" represents the number of hours
-	 * of the timestamp, "M" represents the number of minutes of the timestamp, and "S"
-	 * represents the number of seconds of the timestamp. In both the "H:M:S" and the "M:S"
-	 * format, if the number of seconds of the timestamp is less than 10, there'll be a "0"
-	 * to the left of the "S" in both formats. In the "H:M:S" format, if the number of minutes
-	 * of the timestamp is less than 10, there'll be a "0" to the left of the "M" in that format.
+	 * Returns a String of a given Duration object representing a timestamp. The
+	 * returned String is formatted as "H:M:S" if the timestamp is at least an hour
+	 * long, or "M:S" if not. "H" represents the number of hours of the timestamp,
+	 * "M" represents the number of minutes of the timestamp, and "S" represents the
+	 * number of seconds of the timestamp. In both the "H:M:S" and the "M:S" format,
+	 * if the number of seconds of the timestamp is less than 10, there'll be a "0"
+	 * to the left of the "S" in both formats. In the "H:M:S" format, if the number
+	 * of minutes of the timestamp is less than 10, there'll be a "0" to the left of
+	 * the "M" in that format.
 	 * 
 	 * @param time a Duration object representing a given timestamp
-	 * @return a String that represents a timestamp and has the format "H:M:S" if the timestamp
-	 * is at least an hour long, or "M:S" if not.
+	 * @return a String that represents a timestamp and has the format "H:M:S" if
+	 *         the timestamp is at least an hour long, or "M:S" if not.
 	 */
 	private String getTimeStr(Duration time) {
 		int minutes = (int) time.toMinutes();
-    	int seconds = (int) (time.toSeconds() % 60);
-    	
-    	String timeStr = String.format("%d:%02d", minutes, seconds);
-    	if (minutes >= 60) {
-    		timeStr = String.format("%d:%02d:%02d", minutes / 60, minutes % 60, seconds);
-    	}
-    	return timeStr;
-	}
+		int seconds = (int) (time.toSeconds() % 60);
 
+		String timeStr = String.format("%d:%02d", minutes, seconds);
+		if (minutes >= 60) {
+			timeStr = String.format("%d:%02d:%02d", minutes / 60, minutes % 60, seconds);
+		}
+		return timeStr;
+	}
 
 	@Override
 	public void update(Observable o, Object arg) {
@@ -362,7 +363,11 @@ public class PodcastView extends Application implements Observer {
 		if (arg.getClass() == PlaylistUpdate.class) {
 			PlaylistUpdate playlistChange = (PlaylistUpdate) arg;
 
-			updatePlaylist(playlistChange.getPodcastFeed());
+			if (playlistChange.removalRequest()) {
+				removePlaylist(playlistChange.getPodcastFeed());
+			} else {
+				addPlaylist(playlistChange.getPodcastFeed());
+			}
 		}
 
 		if (arg.getClass() == PlayUpdate.class) {
@@ -381,21 +386,21 @@ public class PodcastView extends Application implements Observer {
 				timeSlider.setDisable(true);
 
 				option.play();
-				
+
 				option.setAutoPlay(false);
-				
+
 				timeSlider.setValue(0);
 				totalTimeLabel.setText("0:00");
-				
+
 				volumeBar.setValue(option.getVolume() * 100);
-				volumeBar.valueProperty().addListener(new InvalidationListener()  {
+				volumeBar.valueProperty().addListener(new InvalidationListener() {
 
 					@Override
 					public void invalidated(javafx.beans.Observable arg0) {
 						// TODO Auto-generated method stub
-						option.setVolume(volumeBar.getValue()/100);
+						option.setVolume(volumeBar.getValue() / 100);
 					}
-					
+
 				});
 				option.setOnPlaying(() -> {
 					headerLabel.setText(playEpisode.getEpisode().getTitle());
@@ -405,54 +410,69 @@ public class PodcastView extends Application implements Observer {
 				option.setOnError(() -> {
 					showErrorMessage("An unexpected error was encountered when playing the selected podcast.");
 				});
-				
+
 				option.setOnEndOfMedia(() -> {
 					option.stop();
 				});
-				
+
 				updateProgBarEpisodeListeners();
 			}
 		}
-		
 
 	}
-	
+
 	/**
-	 * Reinitializes the media player's event listeners every time the current episode 
-	 * of the media player changes. The first event listener changes the displayed current
-	 * timestamp of the episode and the progress bar's position, as the current episode is playing.
-	 * Once the current episode is ready to be played, the second event listener enables the progress
-	 * bar, sets the maximum value of the progress bar to the duration of the current episode, and
-	 * resets the displayed duration timestamp to the new current episode's duration.
+	 * Reinitializes the media player's event listeners every time the current
+	 * episode of the media player changes. The first event listener changes the
+	 * displayed current timestamp of the episode and the progress bar's position,
+	 * as the current episode is playing. Once the current episode is ready to be
+	 * played, the second event listener enables the progress bar, sets the maximum
+	 * value of the progress bar to the duration of the current episode, and resets
+	 * the displayed duration timestamp to the new current episode's duration.
 	 */
 	private void updateProgBarEpisodeListeners() {
 		option.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
 			Platform.runLater(() -> {
-		    	if (!timeSlider.isDisabled() && !timeSlider.isValueChanging()) {
-		              timeSlider.setValue(newTime.toSeconds());
-		    	}
-		    	curTimeLabel.setText((getTimeStr(newTime)));
+				if (!timeSlider.isDisabled() && !timeSlider.isValueChanging()) {
+					timeSlider.setValue(newTime.toSeconds());
+				}
+				curTimeLabel.setText((getTimeStr(newTime)));
 			});
 		});
-		
+
 		option.totalDurationProperty().addListener((obs, oldDuration, newDuration) -> {
-	    	timeSlider.setDisable(false);
-	    	timeSlider.setMax(newDuration.toSeconds());
-	    	totalTimeLabel.setText((getTimeStr(newDuration)));
+			timeSlider.setDisable(false);
+			timeSlider.setMax(newDuration.toSeconds());
+			totalTimeLabel.setText((getTimeStr(newDuration)));
 		});
 	}
 
 	/**
-	 * Adds a PodcastFeed to the choice box TODO: Make this smarter so it doesn't
-	 * add duplicates
+	 * Adds a PodcastFeed to the choice box
 	 * 
 	 * @param feed The PodcastFeed to add to the list
 	 */
-	private void updatePlaylist(PodcastFeed feed) {
-		feedSelector.getItems().addAll(feed);
-		if (feedSelector.getSelectionModel().getSelectedItem() == null) {
-			feedSelector.getSelectionModel().select(feed);
-			changePlaylist(feed);
+	private void addPlaylist(PodcastFeed feed) {
+		if (!feedSelector.getItems().contains(feed)) {
+			feedSelector.getItems().addAll(feed);
+			if (feedSelector.getSelectionModel().getSelectedItem() == null) {
+				feedSelector.getSelectionModel().select(feed);
+				changePlaylist(feed);
+			}
+		}
+	}
+
+	/**
+	 * Removes a Podcast feed from the choice box
+	 * 
+	 * @param feed
+	 */
+	private void removePlaylist(PodcastFeed feed) {
+		if (feedSelector.getItems().contains(feed)) {
+			feedSelector.getItems().remove(feed);
+			if (feedSelector.getSelectionModel().getSelectedItem() == feed && feedSelector.getItems().size() > 0) {
+				feedSelector.getSelectionModel().select(0);
+			}
 		}
 	}
 
@@ -463,7 +483,9 @@ public class PodcastView extends Application implements Observer {
 	 */
 	private void changePlaylist(PodcastFeed feed) {
 		podcastList.getItems().clear();
-		podcastList.getItems().addAll(feed.getEpisodes());
+		if (feed != null) {
+			podcastList.getItems().addAll(feed.getEpisodes());
+		}
 	}
 
 	/**

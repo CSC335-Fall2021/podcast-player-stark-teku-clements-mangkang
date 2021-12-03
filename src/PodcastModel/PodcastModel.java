@@ -13,6 +13,8 @@ import java.util.Observable;
 
 /**
  * The Model for the Podcast Player MVC
+ * 
+ * @author Michael Stark
  */
 @SuppressWarnings("deprecation")
 public class PodcastModel extends Observable {
@@ -27,7 +29,6 @@ public class PodcastModel extends Observable {
 		nowPlaying = null;
 	}
 
-	
 	/**
 	 * Attempts to add a new feed to our list of followed podcast feeds
 	 * 
@@ -47,6 +48,17 @@ public class PodcastModel extends Observable {
 			notifyObservers(new PlaylistUpdate(f));
 			return true;
 		}
+	}
+
+	/**
+	 * Attempts to remove a feed from the list of followed podcast feeds
+	 * 
+	 * @param f The PodcastFeed to remove
+	 */
+	public void removeFeed(PodcastFeed f) {
+		followedFeeds.remove(f);
+		setChanged();
+		notifyObservers(new PlaylistUpdate(f, true));
 	}
 
 	/**

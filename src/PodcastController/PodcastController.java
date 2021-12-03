@@ -31,6 +31,15 @@ public class PodcastController {
 	public boolean addPodcastFeed(String url) {
 		return myModel.addFeed(url);
 	}
+	
+	/**
+	 * Removes a feed from the list of followed podcasts
+	 * 
+	 * @param f The PodcastFeed to remove
+	 */
+	public void removePodcastFeed(PodcastFeed f) {
+		myModel.removeFeed(f);
+	}
 
 	/**
 	 * Gets the current list of followed podcast feeds
