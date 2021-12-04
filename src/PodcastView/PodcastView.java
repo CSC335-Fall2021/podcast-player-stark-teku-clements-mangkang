@@ -1,7 +1,5 @@
 package PodcastView;
 
-import java.io.FileNotFoundException;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Observable;
@@ -36,16 +34,13 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
-import javafx.scene.media.MediaView;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -65,10 +60,13 @@ public class PodcastView extends Application implements Observer {
 	private Button feedInfoBtn;
 	private Label curTimeLabel;
 	private Label totalTimeLabel;
+	private Label playbackRateLabel;
 	private boolean isTempPaused;
 	private Slider volumeBar;
 	// True if the track is changed and false if current track is being manipulated
 	private boolean isTrackNew;
+	private Button playPauseButton;
+	private Slider playbackRateBar;
 
 	@Override
 	public void start(Stage arg0) throws Exception {
@@ -103,7 +101,6 @@ public class PodcastView extends Application implements Observer {
 		stage.setScene(display);
 		stage.setTitle("Podcast Player");
 		stage.show();
-
 	}
 
 	/**
@@ -164,7 +161,7 @@ public class PodcastView extends Application implements Observer {
 		podcastList.getColumns().add(durationCol);
 		podcastList.getColumns().add(downloadedCol);
 
-		Button playPauseButton = new Button("Play");
+		playPauseButton = new Button("Play");
 
 		// Event handler for when podcast episode is double clicked
 		podcastList.setOnMouseClicked((event) -> {
@@ -225,6 +222,22 @@ public class PodcastView extends Application implements Observer {
 				controller.addFavorite(podcastList.getSelectionModel().getSelectedItem());
 			}
 		});
+		
+		// Rewind 30s Button
+		Button rewind30Btn = new Button("<< 30s");
+		rewind30Btn.setOnMouseClicked((click) -> {
+			if (option != null) {
+				option.seek(option.getCurrentTime().subtract(Duration.seconds(30)));
+			}
+		});
+		
+		// Skip 30s Button
+		Button skip30Btn = new Button(">> 30s");
+		skip30Btn.setOnMouseClicked((click) -> {
+			if (option != null) {
+				option.seek(option.getCurrentTime().add(Duration.seconds(30)));
+			}
+		});
 
 		headerLabel = new Label("Welcome to our Podcast Player");
 		headerLabel.setFont(Font.font("Helvetica", FontWeight.EXTRA_BOLD, 30));
@@ -233,9 +246,12 @@ public class PodcastView extends Application implements Observer {
 		obj.setTop(headerLabel);
 
 		obj.setCenter(player);
+		
+		createPlaybackRateBar();
 
 		volumeBar = new Slider();
-		HBox buttonBar = new HBox(20, previousTrack, playPauseButton, nextTrack, favoriteBtn, download, volumeBar);
+		HBox buttonBar = new HBox(20, previousTrack, rewind30Btn, playPauseButton, skip30Btn, nextTrack, favoriteBtn, download, volumeBar);
+		buttonBar.getChildren().addAll(playbackRateBar, playbackRateLabel);
 		buttonBar.setAlignment(Pos.CENTER);
 		obj.setBottom(buttonBar);
 
@@ -348,6 +364,29 @@ public class PodcastView extends Application implements Observer {
 		curTimeLabel = new Label("0:00");
 		totalTimeLabel = new Label("0:00");
 	}
+	
+	/**
+	 * Initializes the playback rate bar and the playback rate label. Sets the minimum 
+	 * playback rate to 0.5, the maximum rate to 2, and the default rate to 1. 
+	 * The playback can only be changed in increments of 0.1 and so the playback rate
+	 * bar positions at the nearest lower decimal with only one decimal place.
+	 */
+	private void createPlaybackRateBar() {
+		playbackRateBar = new Slider();
+		playbackRateBar.setMin(0.5);
+		playbackRateBar.setMax(2);
+		playbackRateBar.setValue(1);
+		playbackRateBar.setDisable(true);
+		
+		playbackRateLabel = new Label("1.0x");
+		
+		playbackRateBar.valueProperty().addListener((obs, oldValue, newValue) -> {
+			double newPlaybackRate = Math.floor(newValue.doubleValue() * 10.0) / 10.0;
+			playbackRateBar.setValue(newPlaybackRate);
+			option.setRate(newPlaybackRate);
+			playbackRateLabel.setText(String.format("%.1fx", newPlaybackRate));
+		});
+	}
 
 	/**
 	 * Returns a String of a given Duration object representing a timestamp. The
@@ -403,6 +442,7 @@ public class PodcastView extends Application implements Observer {
 				headerLabel.setText("Loading: " + playEpisode.getEpisode().getTitle());
 				option = new MediaPlayer(currentMedia);
 				timeSlider.setDisable(true);
+				playbackRateBar.setDisable(true);
 
 				option.play();
 
@@ -410,6 +450,7 @@ public class PodcastView extends Application implements Observer {
 
 				timeSlider.setValue(0);
 				totalTimeLabel.setText("0:00");
+				playbackRateBar.setValue(1);
 
 				volumeBar.setValue(option.getVolume() * 100);
 				volumeBar.valueProperty().addListener(new InvalidationListener() {
@@ -431,13 +472,27 @@ public class PodcastView extends Application implements Observer {
 				});
 
 				option.setOnEndOfMedia(() -> {
-					option.stop();
+					stopEpisode();
+				});
+				
+				option.setOnStalled(() -> {
+					stopEpisode();
 				});
 
 				updateProgBarEpisodeListeners();
 			}
 		}
-
+	}
+	
+	/*
+	 * Stops the when the media player is stalled or is at the end of the episode,
+	 * resets the progress bar back to the start, and renames the play/pause button
+	 * to play.
+	 */
+	private void stopEpisode() {
+		option.stop();
+		timeSlider.setValue(0);
+		playPauseButton.setText("Play");
 	}
 
 	/**
@@ -452,7 +507,7 @@ public class PodcastView extends Application implements Observer {
 	private void updateProgBarEpisodeListeners() {
 		option.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
 			Platform.runLater(() -> {
-				if (!timeSlider.isDisabled() && !timeSlider.isValueChanging()) {
+	 			if (!timeSlider.isDisabled() && !timeSlider.isValueChanging()) {
 					timeSlider.setValue(newTime.toSeconds());
 				}
 				curTimeLabel.setText((getTimeStr(newTime)));
@@ -461,6 +516,7 @@ public class PodcastView extends Application implements Observer {
 
 		option.totalDurationProperty().addListener((obs, oldDuration, newDuration) -> {
 			timeSlider.setDisable(false);
+			playbackRateBar.setDisable(false);
 			timeSlider.setMax(newDuration.toSeconds());
 			totalTimeLabel.setText((getTimeStr(newDuration)));
 		});
