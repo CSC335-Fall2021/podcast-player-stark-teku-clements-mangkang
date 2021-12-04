@@ -34,6 +34,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -68,7 +69,7 @@ public class PodcastView extends Application implements Observer {
 	private Slider volumeBar;
 	// True if the track is changed and false if current track is being manipulated
 	private boolean isTrackNew; 
-
+	private ImageView image;
 	@Override
 	public void start(Stage arg0) throws Exception {
 		PodcastModel model = new PodcastModel();
@@ -170,6 +171,7 @@ public class PodcastView extends Application implements Observer {
 		podcastList.setOnMouseClicked((event) -> {
 			if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
 				controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+			 
 				playPauseButton.setText("Pause");
 			}
 		});
@@ -191,6 +193,14 @@ public class PodcastView extends Application implements Observer {
 		// Event handler
 		feedSelector.setOnAction((click) -> {
 			changePlaylist(feedSelector.getSelectionModel().getSelectedItem());
+			
+			if (image != null) {
+				feedSelectorBox.getChildren().remove(image);
+			}
+			image = new ImageView(feedSelector.getSelectionModel().getSelectedItem().getImageURL());
+			image.setFitWidth(100);
+			image.setFitHeight(75);
+			feedSelectorBox.getChildren().add(image);
 		});
 
 		VBox player = new VBox(10, timeSlider, timeLabelHBox, feedSelectorBox, podcastList);
@@ -453,6 +463,7 @@ public class PodcastView extends Application implements Observer {
 		if (feedSelector.getSelectionModel().getSelectedItem() == null) {
 			feedSelector.getSelectionModel().select(feed);
 			changePlaylist(feed);
+			
 		}
 	}
 
