@@ -33,6 +33,24 @@ public class PodcastController {
 	}
 
 	/**
+	 * Removes a feed from the list of followed podcasts
+	 * 
+	 * @param f The PodcastFeed to remove
+	 */
+	public void removePodcastFeed(PodcastFeed f) {
+		myModel.removeFeed(f);
+	}
+
+	/**
+	 * Adds a PodcastEpisode to the favorites playlist
+	 * 
+	 * @param e
+	 */
+	public void addFavorite(PodcastEpisode e) {
+		myModel.addFavorite(e);
+	}
+
+	/**
 	 * Gets the current list of followed podcast feeds
 	 * 
 	 * @return An ArrayList<PodcastFeed> of followed feeds, can be empty if nothing

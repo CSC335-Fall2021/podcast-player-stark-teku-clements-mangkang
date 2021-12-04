@@ -13,10 +13,13 @@ import java.util.Observable;
 
 /**
  * The Model for the Podcast Player MVC
+ * 
+ * @author Michael Stark
  */
 @SuppressWarnings("deprecation")
 public class PodcastModel extends Observable {
 	private ArrayList<PodcastFeed> followedFeeds;
+	private PodcastFeed favoriteEpisodes;
 	private PodcastEpisode nowPlaying;
 
 	/**
@@ -27,7 +30,6 @@ public class PodcastModel extends Observable {
 		nowPlaying = null;
 	}
 
-	
 	/**
 	 * Attempts to add a new feed to our list of followed podcast feeds
 	 * 
@@ -46,6 +48,36 @@ public class PodcastModel extends Observable {
 			setChanged();
 			notifyObservers(new PlaylistUpdate(f));
 			return true;
+		}
+	}
+
+	/**
+	 * Attempts to remove a feed from the list of followed podcast feeds
+	 * 
+	 * @param f The PodcastFeed to remove
+	 */
+	public void removeFeed(PodcastFeed f) {
+		followedFeeds.remove(f);
+		setChanged();
+		notifyObservers(new PlaylistUpdate(f, true));
+	}
+
+	/**
+	 * Adds a PodcastEpisode to the favorites playlist
+	 * 
+	 * @param e
+	 */
+	public void addFavorite(PodcastEpisode e) {
+		if (e != null) {
+			if (favoriteEpisodes == null) {
+				favoriteEpisodes = new PodcastFeed("favorite", "Favorites", "My favorite podcast episodes", "", "", "",
+						"");
+				followedFeeds.add(0, favoriteEpisodes);
+			}
+
+			favoriteEpisodes.addEpisode(e);
+			setChanged();
+			notifyObservers(new PlaylistUpdate(favoriteEpisodes));
 		}
 	}
 
