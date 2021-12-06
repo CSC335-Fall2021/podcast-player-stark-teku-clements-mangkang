@@ -1,6 +1,5 @@
 package PodcastView;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -72,6 +71,8 @@ public class PodcastView extends Application implements Observer {
 	private Button playPauseButton;
 	private Slider playbackRateBar;
 	private ImageView image;
+	private static final int minWindowWidth = 900;
+	private static final int minWindowHeight = 400;
 
 	@Override
 	public void start(Stage arg0) throws Exception {
@@ -103,6 +104,9 @@ public class PodcastView extends Application implements Observer {
 				showErrorMessage("Error saving podcast information: " + e);
 			}
 		});
+		stage.setMinWidth(minWindowWidth);
+		stage.setMinHeight(minWindowHeight);
+		stage.setResizable(false);
 		stage.setScene(display);
 		stage.setTitle("Podcast Player");
 		stage.show();
@@ -132,9 +136,8 @@ public class PodcastView extends Application implements Observer {
 	private void createView() {
 
 		obj = new BorderPane();
-		obj.setMinSize(900, 400);
-		obj.setMaxHeight(900);
-		obj.setPadding(new Insets(8, 8, 8, 8));
+		obj.setMinSize(minWindowWidth, minWindowHeight);
+		obj.setPadding(new Insets(15));
 		obj.setStyle("-fx-background-color:#00FF7F; -fx-opacity:1;");
 
 		// Create the list of Podcast Episodes
@@ -144,6 +147,7 @@ public class PodcastView extends Application implements Observer {
 		titleCol.setMinWidth(650);
 		TableColumn<PodcastEpisode, String> listenedCol = new TableColumn<PodcastEpisode, String>("Listened");
 		TableColumn<PodcastEpisode, String> downloadedCol = new TableColumn<PodcastEpisode, String>("Downloaded");
+		downloadedCol.setMinWidth(10);
 		listenedCol.setCellValueFactory(cellData -> {
 			cellData.getTableColumn().setStyle("-fx-alignment: CENTER;");
 			if (cellData.getValue().getListenedTo()) {
@@ -224,6 +228,8 @@ public class PodcastView extends Application implements Observer {
 
 		VBox player = new VBox(10, timeSlider, timeLabelHBox, feedSelectorBox, podcastList);
 		player.setPadding(new Insets(10, 10, 10, 10));
+		player.setMaxHeight(minWindowHeight*4);
+		VBox.setVgrow(player, Priority.ALWAYS);
 
 		Button nextTrack = new Button("Next Track");
 		Button previousTrack = new Button("Previous Track");
@@ -350,10 +356,8 @@ public class PodcastView extends Application implements Observer {
 			} catch (NullPointerException e) {
 				showErrorMessage("Select a podcast to download!");
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		});

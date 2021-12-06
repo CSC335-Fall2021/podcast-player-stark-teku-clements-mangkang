@@ -61,6 +61,7 @@ public class FeedInfoWindow extends Stage {
 		// Description
 		Label descLabel = new Label("Description: ");
 		TextArea feedDesc = new TextArea(feed.getDescription());
+		feedDesc.setEditable(false);
 		feedDesc.setWrapText(true);
 		VBox descBox = new VBox(10, descLabel, feedDesc);
 
