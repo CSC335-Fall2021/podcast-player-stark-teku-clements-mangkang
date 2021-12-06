@@ -246,6 +246,9 @@ public class PodcastView extends Application implements Observer {
 				}
 				
 			}
+			else {
+				showErrorMessage("Select a podcast to favorite!");
+			}
 		});
 
 		// Rewind 30s Button
@@ -345,6 +348,9 @@ public class PodcastView extends Application implements Observer {
 				alert.setContentText("Download is complete!");
 				alert.showAndWait();
 
+			}
+			catch (NullPointerException e) {
+				showErrorMessage("Select a podcast to download!");
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
