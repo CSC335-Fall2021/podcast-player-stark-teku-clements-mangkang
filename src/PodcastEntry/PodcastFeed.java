@@ -1,6 +1,8 @@
 package PodcastEntry;
 
 import PodcastEntry.PodcastEpisode;
+import javafx.scene.image.Image;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -18,6 +20,7 @@ public class PodcastFeed implements Serializable {
 	private String feedCopyright;
 	private String feedLanguage;
 	private String feedImageURL;
+	private transient Image feedImage;
 	private String feedLink;
 	private ArrayList<PodcastEpisode> feedEpisodes;
 
@@ -89,6 +92,19 @@ public class PodcastFeed implements Serializable {
 	 */
 	public String getImageURL() {
 		return feedImageURL;
+	}
+	
+	/**
+	 * Gets this Podcast Feed's cached image
+	 * 
+	 * @return The image as a javafx.scene.Image
+	 */
+	public Image getImage() {
+		if (feedImage == null) {
+			feedImage = new Image(this.getImageURL());
+		}
+		
+		return feedImage;
 	}
 
 	/**

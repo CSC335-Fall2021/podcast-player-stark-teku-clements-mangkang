@@ -33,7 +33,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
@@ -221,14 +220,14 @@ public class PodcastView extends Application implements Observer {
 			if (feedSelector.getSelectionModel().getSelectedItem() == null) {
 				image.setImage(null);
 			} else {
-				image.setImage(new Image(feedSelector.getSelectionModel().getSelectedItem().getImageURL()));
+				image.setImage(feedSelector.getSelectionModel().getSelectedItem().getImage());
 			}
 			changePlaylist(feedSelector.getSelectionModel().getSelectedItem());
 		});
 
 		VBox player = new VBox(10, timeSlider, timeLabelHBox, feedSelectorBox, podcastList);
 		player.setPadding(new Insets(10, 10, 10, 10));
-		player.setMaxHeight(minWindowHeight*4);
+		player.setMaxHeight(minWindowHeight * 4);
 		VBox.setVgrow(player, Priority.ALWAYS);
 
 		Button nextTrack = new Button("Next Track");

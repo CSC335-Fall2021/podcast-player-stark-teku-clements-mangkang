@@ -41,7 +41,7 @@ public class FeedInfoWindow extends Stage {
 		if (feed.getImageURL().equalsIgnoreCase("")) {
 			img = new Image(new File("imgs/placeholder.png").toURI().toString());
 		} else {
-			img = new Image(feed.getImageURL());
+			img = feed.getImage();
 		}
 		imageView = new ImageView(img);
 		imageView.setFitHeight(250);
