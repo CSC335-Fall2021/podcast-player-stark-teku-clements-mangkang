@@ -230,17 +230,21 @@ public class PodcastView extends Application implements Observer {
 		favoriteBtn.setTooltip(new Tooltip("Favorite Episode"));
 		favoriteBtn.setOnMouseClicked((click) -> {
 			if (podcastList.getSelectionModel().getSelectedItem() != null) {
-				
+				boolean alreadyAdded = false;
 				ArrayList<PodcastFeed> feeds = controller.getPodcastFeeds();
 				for (PodcastFeed feed: feeds) {
 					if (feed.getTitle().equals("Favorites")) {
 						if (feed.getEpisodes().contains(podcastList.getSelectionModel().getSelectedItem())) {
 							showErrorMessage("You have already favorited this episode! :)");
+							alreadyAdded = true;
 							continue;
 						}
 					}
 				}
-				controller.addFavorite(podcastList.getSelectionModel().getSelectedItem());
+				if (alreadyAdded == false) {
+					controller.addFavorite(podcastList.getSelectionModel().getSelectedItem());
+				}
+				
 			}
 		});
 
