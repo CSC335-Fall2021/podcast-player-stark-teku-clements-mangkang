@@ -2,6 +2,7 @@ package PodcastView;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -229,7 +230,24 @@ public class PodcastView extends Application implements Observer {
 		favoriteBtn.setTooltip(new Tooltip("Favorite Episode"));
 		favoriteBtn.setOnMouseClicked((click) -> {
 			if (podcastList.getSelectionModel().getSelectedItem() != null) {
-				controller.addFavorite(podcastList.getSelectionModel().getSelectedItem());
+				boolean alreadyAdded = false;
+				ArrayList<PodcastFeed> feeds = controller.getPodcastFeeds();
+				for (PodcastFeed feed: feeds) {
+					if (feed.getTitle().equals("Favorites")) {
+						if (feed.getEpisodes().contains(podcastList.getSelectionModel().getSelectedItem())) {
+							showErrorMessage("You have already favorited this episode! :)");
+							alreadyAdded = true;
+							continue;
+						}
+					}
+				}
+				if (alreadyAdded == false) {
+					controller.addFavorite(podcastList.getSelectionModel().getSelectedItem());
+				}
+				
+			}
+			else {
+				showErrorMessage("Select a podcast to favorite!");
 			}
 		});
 
@@ -239,6 +257,9 @@ public class PodcastView extends Application implements Observer {
 			if (option != null) {
 				option.seek(option.getCurrentTime().subtract(Duration.seconds(30)));
 			}
+			else {
+				showErrorMessage("Start listening before you rewind! :)");
+			}
 		});
 
 		// Skip 30s Button
@@ -246,6 +267,9 @@ public class PodcastView extends Application implements Observer {
 		skip30Btn.setOnMouseClicked((click) -> {
 			if (option != null) {
 				option.seek(option.getCurrentTime().add(Duration.seconds(30)));
+			}
+			else {
+				showErrorMessage("Start listening before you skip ahead! :)");
 			}
 		});
 
@@ -267,11 +291,18 @@ public class PodcastView extends Application implements Observer {
 		obj.setBottom(buttonBar);
 
 		previousTrack.setOnMouseClicked((click) -> {
-			int numberOfEpisodes = podcastList.getItems().size();
-			int nextInd = (podcastList.getSelectionModel().getSelectedIndex() - 1) % numberOfEpisodes;
-			podcastList.getSelectionModel().select(nextInd);
-			controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
-			playPauseButton.setText("Pause");
+			try {
+				int numberOfEpisodes = podcastList.getItems().size();
+				int nextInd = (podcastList.getSelectionModel().getSelectedIndex() - 1) % numberOfEpisodes;
+				podcastList.getSelectionModel().select(nextInd);
+				controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+				playPauseButton.setText("Pause");
+			}
+			catch (NullPointerException e) {
+				showErrorMessage("Start listening before you seek previous tracks.");
+			}
+			
+			 
 		});
 
 		playPauseButton.setOnMouseClicked((click) -> {
@@ -317,6 +348,9 @@ public class PodcastView extends Application implements Observer {
 				alert.setContentText("Download is complete!");
 				alert.showAndWait();
 
+			}
+			catch (NullPointerException e) {
+				showErrorMessage("Select a podcast to download!");
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
