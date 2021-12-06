@@ -2,6 +2,7 @@ package PodcastModel;
 
 import PodcastEntry.*;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -21,6 +22,7 @@ public class PodcastModel extends Observable {
 	private ArrayList<PodcastFeed> followedFeeds;
 	private PodcastFeed favoriteEpisodes;
 	private PodcastEpisode nowPlaying;
+	private File favoritesImage = new File("imgs/favorites.jpg");
 
 	/**
 	 * Constructor
@@ -57,6 +59,11 @@ public class PodcastModel extends Observable {
 	 * @param f The PodcastFeed to remove
 	 */
 	public void removeFeed(PodcastFeed f) {
+		// Special case for favorites
+		if (f.getURL().equalsIgnoreCase("favorite")) {
+			favoriteEpisodes = null;
+		}
+
 		followedFeeds.remove(f);
 		setChanged();
 		notifyObservers(new PlaylistUpdate(f, true));
@@ -68,11 +75,10 @@ public class PodcastModel extends Observable {
 	 * @param e
 	 */
 	public void addFavorite(PodcastEpisode e) {
-		if (e != null) {
+		if (!e.equals(null)) {
 			if (favoriteEpisodes == null) {
 				favoriteEpisodes = new PodcastFeed("favorite", "Favorites", "My favorite podcast episodes", "", "",
-						"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/300px-No_image_available.svg.png",
-						"");
+						favoritesImage.toURI().toString(), "");
 				followedFeeds.add(0, favoriteEpisodes);
 			}
 
@@ -118,6 +124,10 @@ public class PodcastModel extends Observable {
 			followedFeeds = (ArrayList<PodcastFeed>) objStream.readObject();
 
 			for (PodcastFeed feed : followedFeeds) {
+				if (feed.getURL().equalsIgnoreCase("favorite")) {
+					favoriteEpisodes = feed;
+				}
+
 				setChanged();
 				notifyObservers(new PlaylistUpdate(feed));
 			}

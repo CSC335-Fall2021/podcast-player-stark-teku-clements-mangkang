@@ -1,5 +1,7 @@
 package PodcastView;
 
+import java.io.File;
+
 import PodcastEntry.PodcastFeed;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -37,8 +39,7 @@ public class FeedInfoWindow extends Stage {
 		BorderPane win = new BorderPane();
 
 		if (feed.getImageURL().equalsIgnoreCase("")) {
-			img = new Image(
-					"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/300px-No_image_available.svg.png");
+			img = new Image(new File("imgs/placeholder.png").toURI().toString());
 		} else {
 			img = new Image(feed.getImageURL());
 		}

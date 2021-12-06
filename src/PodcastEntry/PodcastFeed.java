@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * @author Michael Stark
  */
 public class PodcastFeed implements Serializable {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 	private String feedURL;
 	private String feedTitle;
 	private String feedDescription;

@@ -1,5 +1,6 @@
 package PodcastView;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
@@ -121,7 +123,7 @@ public class PodcastView extends Application implements Observer {
 		// Event handler for menu items
 		addFeedMenu.setOnAction((click) -> {
 			new AddFeedWindow(controller);
-			
+
 		});
 
 		return menuBar;
@@ -203,18 +205,20 @@ public class PodcastView extends Application implements Observer {
 			}
 		});
 
-		HBox feedSelectorBox = new HBox(10, feedSelectorLabel, feedSelector, feedInfoBtn, removeFeedBtn);
+		image = new ImageView();
+		image.setFitWidth(75);
+		image.setFitHeight(75);
+
+		HBox feedSelectorBox = new HBox(10, feedSelectorLabel, feedSelector, feedInfoBtn, removeFeedBtn, image);
 		feedSelectorBox.setAlignment(Pos.CENTER);
 
 		// Event handler
 		feedSelector.setOnAction((click) -> {
-			if (image != null) {
-				feedSelectorBox.getChildren().remove(image);
+			if (feedSelector.getSelectionModel().getSelectedItem() == null) {
+				image.setImage(null);
+			} else {
+				image.setImage(new Image(feedSelector.getSelectionModel().getSelectedItem().getImageURL()));
 			}
-			image = new ImageView(feedSelector.getSelectionModel().getSelectedItem().getImageURL());
-			image.setFitWidth(100);
-			image.setFitHeight(75);
-			feedSelectorBox.getChildren().add(image);
 			changePlaylist(feedSelector.getSelectionModel().getSelectedItem());
 		});
 
@@ -232,21 +236,20 @@ public class PodcastView extends Application implements Observer {
 			if (podcastList.getSelectionModel().getSelectedItem() != null) {
 				boolean alreadyAdded = false;
 				ArrayList<PodcastFeed> feeds = controller.getPodcastFeeds();
-				for (PodcastFeed feed: feeds) {
-					if (feed.getTitle().equals("Favorites")) {
+				for (PodcastFeed feed : feeds) {
+					if (feed.getURL().equals("favorite")) {
 						if (feed.getEpisodes().contains(podcastList.getSelectionModel().getSelectedItem())) {
 							showErrorMessage("You have already favorited this episode! :)");
 							alreadyAdded = true;
-							continue;
+							break;
 						}
 					}
 				}
-				if (alreadyAdded == false) {
+				if (!alreadyAdded) {
 					controller.addFavorite(podcastList.getSelectionModel().getSelectedItem());
 				}
-				
-			}
-			else {
+
+			} else {
 				showErrorMessage("Select a podcast to favorite!");
 			}
 		});
@@ -256,8 +259,7 @@ public class PodcastView extends Application implements Observer {
 		rewind30Btn.setOnMouseClicked((click) -> {
 			if (option != null) {
 				option.seek(option.getCurrentTime().subtract(Duration.seconds(30)));
-			}
-			else {
+			} else {
 				showErrorMessage("Start listening before you rewind! :)");
 			}
 		});
@@ -267,8 +269,7 @@ public class PodcastView extends Application implements Observer {
 		skip30Btn.setOnMouseClicked((click) -> {
 			if (option != null) {
 				option.seek(option.getCurrentTime().add(Duration.seconds(30)));
-			}
-			else {
+			} else {
 				showErrorMessage("Start listening before you skip ahead! :)");
 			}
 		});
@@ -297,12 +298,10 @@ public class PodcastView extends Application implements Observer {
 				podcastList.getSelectionModel().select(nextInd);
 				controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
 				playPauseButton.setText("Pause");
-			}
-			catch (NullPointerException e) {
+			} catch (NullPointerException e) {
 				showErrorMessage("Start listening before you seek previous tracks.");
 			}
-			
-			 
+
 		});
 
 		playPauseButton.setOnMouseClicked((click) -> {
@@ -348,8 +347,7 @@ public class PodcastView extends Application implements Observer {
 				alert.setContentText("Download is complete!");
 				alert.showAndWait();
 
-			}
-			catch (NullPointerException e) {
+			} catch (NullPointerException e) {
 				showErrorMessage("Select a podcast to download!");
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
