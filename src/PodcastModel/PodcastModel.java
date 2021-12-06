@@ -70,7 +70,8 @@ public class PodcastModel extends Observable {
 	public void addFavorite(PodcastEpisode e) {
 		if (e != null) {
 			if (favoriteEpisodes == null) {
-				favoriteEpisodes = new PodcastFeed("favorite", "Favorites", "My favorite podcast episodes", "", "", "",
+				favoriteEpisodes = new PodcastFeed("favorite", "Favorites", "My favorite podcast episodes", "", "",
+						"https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/300px-No_image_available.svg.png",
 						"");
 				followedFeeds.add(0, favoriteEpisodes);
 			}
