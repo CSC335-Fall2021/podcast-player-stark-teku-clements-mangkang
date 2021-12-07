@@ -10,12 +10,13 @@ import PodcastEntry.PodcastEpisode;
 import PodcastEntry.PodcastFeed;
 import PodcastModel.DownloadEpisode;
 import PodcastModel.PlayUpdate;
+import PodcastModel.PlaylistUpdate;
 import PodcastModel.PodcastModel;
 
 /**
  * Unit Tests for PodcastPlayer
  * 
- * @author Michael Stark
+ * @author Michael Stark, Nathan Teku
  */
 class PodcastTests {
 
@@ -85,6 +86,12 @@ class PodcastTests {
 		
 		PlayUpdate p = new PlayUpdate(e);
 		assertEquals(e,p.getEpisode());
+		
+		PlaylistUpdate playList = new PlaylistUpdate(f);
+		assertEquals(f,playList.getPodcastFeed());
+		
+		playList.removalRequest();
+		
 	}
 
 }
