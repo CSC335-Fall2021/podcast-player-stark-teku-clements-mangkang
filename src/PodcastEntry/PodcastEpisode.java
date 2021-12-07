@@ -19,6 +19,7 @@ public class PodcastEpisode implements Serializable {
 	private String episodeDuration;
 	private LocalDate episodeDate;
 	private boolean listenedTo;
+	private boolean isDownloaded;
 
 	/**
 	 * Constructor
@@ -171,6 +172,22 @@ public class PodcastEpisode implements Serializable {
 		return listenedTo;
 	}
 
+	/**
+	 * Sets if this episode has been downloaded to or not
+	 * @param d Boolean, true if downloaded, false if not
+	 */
+	public void setDownloadedTo(boolean d) {
+		isDownloaded = d;
+	}
+	
+	/**
+	 * Gets if this episode has been downloaded to or not
+	 * 
+	 * @return True if downloaded, false if not
+	 */
+	public boolean gotDownloaded() {
+		return isDownloaded;
+	}
 	/**
 	 * Gets a string representation of the episode. Currently this is the title and
 	 * duration

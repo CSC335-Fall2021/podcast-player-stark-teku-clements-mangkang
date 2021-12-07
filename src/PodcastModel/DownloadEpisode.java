@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import PodcastEntry.PodcastEpisode;
 /**
  * This class's main purpose is to download the specific podcast episode
  * @author Nathan Teku
@@ -25,7 +27,7 @@ public class DownloadEpisode {
 	 * @param title the Title of the specific podcast
 	 * @throws IOException
 	 */
-	public DownloadEpisode(String url,String title) throws IOException
+	public DownloadEpisode(String url,String title, PodcastEpisode episode) throws IOException
 	{
 		
 		
@@ -45,7 +47,7 @@ public class DownloadEpisode {
 	        newFile.write(readingMemory, 0, collectedBytes);
 	    }
 		
-		
+		episode.setDownloadedTo(true);
 		
 	}
 }

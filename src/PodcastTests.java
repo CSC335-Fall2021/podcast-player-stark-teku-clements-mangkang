@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import PodcastController.PodcastController;
 import PodcastEntry.PodcastEpisode;
 import PodcastEntry.PodcastFeed;
+import PodcastModel.DownloadEpisode;
 import PodcastModel.PodcastModel;
 
 /**
@@ -43,7 +44,7 @@ class PodcastTests {
 		assertEquals("Dateline NBC", f.toString());
 		assertNotEquals(null, f.getEpisodes());
 		myController.loadFeeds();
-		
+		 
 		// Test PodcastEpisode
 		PodcastEpisode e = f.getEpisodes().get(0);
 		assertEquals("The Family Secret", e.getTitle());
@@ -72,6 +73,14 @@ class PodcastTests {
 		myController.loadFeeds();
 		myController.removePodcastFeed(f);
 		
+		
+		try {
+			new DownloadEpisode(e.getMediaURL(),e.getTitle(),e);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		assertTrue(e.gotDownloaded());
 	}
 
 }

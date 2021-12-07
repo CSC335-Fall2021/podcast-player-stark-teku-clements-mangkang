@@ -345,13 +345,15 @@ public class PodcastView extends Application implements Observer {
 			try {
 				String url = podcastList.getSelectionModel().getSelectedItem().getMediaURL();
 				String name = podcastList.getSelectionModel().getSelectedItem().getTitle();
-				DownloadEpisode obj = new DownloadEpisode(url, name);
+				DownloadEpisode obj = new DownloadEpisode(url, name,podcastList.getSelectionModel().getSelectedItem());
 
 				Alert alert = new Alert(AlertType.INFORMATION);
 				alert.setTitle("Error!");
 				alert.setContentText("Download is complete!");
 				alert.showAndWait();
 
+				 
+				 
 			} catch (NullPointerException e) {
 				showErrorMessage("Select a podcast to download!");
 			} catch (MalformedURLException e) {
