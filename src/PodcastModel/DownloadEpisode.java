@@ -40,7 +40,7 @@ public class DownloadEpisode {
 		// initialize the byte array
 		readingMemory = new byte[arrayLength];
 		// create the output text file
-		newFile = new FileOutputStream(title + ".txt");
+		newFile = new FileOutputStream(title + ".mp4");
 		
 		// reading the text file
 	    while ((collectedBytes = readingSource.read(readingMemory, 0, 1024)) != -1) {

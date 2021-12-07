@@ -1,5 +1,6 @@
 package PodcastView;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -43,6 +44,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -137,6 +142,10 @@ public class PodcastView extends Application implements Observer {
 		obj = new BorderPane();
 		obj.setMinSize(minWindowWidth, minWindowHeight);
 		obj.setPadding(new Insets(15));
+		 Stop[] stops = new Stop[] {   new Stop(0, Color.DARKOLIVEGREEN),new Stop(1, Color.BLUE)
+		      };
+		 LinearGradient gradient = new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
+	
 		obj.setStyle("-fx-background-color:#00FF7F; -fx-opacity:1;");
 
 		// Create the list of Podcast Episodes
@@ -150,6 +159,15 @@ public class PodcastView extends Application implements Observer {
 		listenedCol.setCellValueFactory(cellData -> {
 			cellData.getTableColumn().setStyle("-fx-alignment: CENTER;");
 			if (cellData.getValue().getListenedTo()) {
+				return new SimpleStringProperty("X");
+			} else {
+				return new SimpleStringProperty("");
+			}
+		});
+
+		downloadedCol.setCellValueFactory(cellData -> {
+			cellData.getTableColumn().setStyle("-fx-alignment: CENTER;");
+			if (cellData.getValue().gotDownloaded()) {
 				return new SimpleStringProperty("X");
 			} else {
 				return new SimpleStringProperty("");
@@ -309,27 +327,34 @@ public class PodcastView extends Application implements Observer {
 
 		});
 
+		
 		playPauseButton.setOnMouseClicked((click) -> {
 
-			if (isTrackNew == true) {
-				try {
-					controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
-					playPauseButton.setText("Pause");
-				} catch (NullPointerException e) {
-					showErrorMessage("Select a podcast before you play!");
-				}
-
-			} else {
-				if (option.getStatus() == Status.PLAYING) {
-					option.pause();
-					playPauseButton.setText("Play");
-
+		 
+				 
+			 
+			 
+			 
+				if (isTrackNew == true) {
+					try {
+						controller.playEpisode(podcastList.getSelectionModel().getSelectedItem());
+						playPauseButton.setText("Pause");
+					} catch (NullPointerException e) {
+						showErrorMessage("Select a podcast before you play!");
+					}
+	
 				} else {
-					option.play();
-					playPauseButton.setText("Pause");
+					if (option.getStatus() == Status.PLAYING) {
+						option.pause();
+						playPauseButton.setText("Play");
+	
+					} else {
+						option.play();
+						playPauseButton.setText("Pause");
+					}
 				}
-			}
-
+			
+			
 		});
 
 		nextTrack.setOnMouseClicked((click) -> {
@@ -363,7 +388,8 @@ public class PodcastView extends Application implements Observer {
 			}
 		});
 	}
-
+ 
+	
 	/**
 	 * Initializes the progress bar and its event listeners. The first listener
 	 * detects if the user clicks at a different position at least 0.5 seconds away
@@ -487,7 +513,15 @@ public class PodcastView extends Application implements Observer {
 			// Load and play our new file
 			if (playEpisode.getEpisode() != null) {
 				Media currentMedia = new Media(playEpisode.getEpisode().getMediaURL());
+				if (playEpisode.getEpisode().gotDownloaded() == true) {
+					//File file = new File(playEpisode.getEpisode().getTitle() + ".mp4");
+					headerLabel.setText("Loading Downloaded File: " + playEpisode.getEpisode().getTitle());
+						 
+					 
+				}
+				else {
 				headerLabel.setText("Loading: " + playEpisode.getEpisode().getTitle());
+				}
 				option = new MediaPlayer(currentMedia);
 				timeSlider.setDisable(true);
 				playbackRateBar.setDisable(true);

@@ -21,7 +21,7 @@ import PodcastModel.PodcastModel;
 class PodcastTests {
 
 	@Test
-	void testPodcast() {
+	void testPodcast() throws IOException {
 		PodcastModel myModel = new PodcastModel();
 		PodcastController myController = new PodcastController(myModel);
 		
@@ -62,6 +62,7 @@ class PodcastTests {
 		assertEquals("www.example.com", e.getLink());
 		e.setListenedTo(true);
 		assertTrue(e.getListenedTo());
+		 
 		
 		// Test controller 
 		myController.addFavorite(e);
@@ -76,12 +77,9 @@ class PodcastTests {
 		myController.removePodcastFeed(f);
 		
 		
-		try {
+ 
 			new DownloadEpisode(e.getMediaURL(),e.getTitle(),e);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		 
 		assertTrue(e.gotDownloaded());
 		
 		PlayUpdate p = new PlayUpdate(e);
@@ -92,6 +90,17 @@ class PodcastTests {
 		
 		playList.removalRequest();
 		
+	 
+		//PodcastModel model = new PodcastModel();
+	 //PodcastController controller = new PodcastController(model);
+	 
+	
+	 
+	 
+	 //assertTrue(controller.addPodcastFeed(null));
+	 
+		
 	}
-
+     
+	 
 }
