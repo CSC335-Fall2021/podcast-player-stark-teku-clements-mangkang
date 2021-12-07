@@ -45,10 +45,14 @@ class PodcastTests {
 		assertEquals("en", f.getLanguage());
 		assertEquals("Dateline NBC", f.toString());
 		assertNotEquals(null, f.getEpisodes());
-		myController.loadFeeds();
+		
 		 
 		// Test PodcastEpisode
 		PodcastEpisode e = f.getEpisodes().get(0);
+		// Tests adding favorite before feeds are loaded
+		myController.addFavorite(e);
+		
+		myController.loadFeeds();
 		assertEquals("The Family Secret", e.getTitle());
 		assertEquals("9795fb65-62ff-4acf-b2ad-c314614dcd30", e.getGUID());
 		assertEquals(null, e.getLink());
@@ -64,7 +68,6 @@ class PodcastTests {
 		assertTrue(e.getListenedTo());
 		
 		// Test controller 
-		myController.addFavorite(e);
 		myController.playEpisode(e);
 		try {
 			myController.saveFeeds();
