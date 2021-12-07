@@ -9,6 +9,7 @@ import PodcastController.PodcastController;
 import PodcastEntry.PodcastEpisode;
 import PodcastEntry.PodcastFeed;
 import PodcastModel.DownloadEpisode;
+import PodcastModel.PlayUpdate;
 import PodcastModel.PodcastModel;
 
 /**
@@ -81,6 +82,9 @@ class PodcastTests {
 			e1.printStackTrace();
 		}
 		assertTrue(e.gotDownloaded());
+		
+		PlayUpdate p = new PlayUpdate(e);
+		assertEquals(e,p.getEpisode());
 	}
 
 }
