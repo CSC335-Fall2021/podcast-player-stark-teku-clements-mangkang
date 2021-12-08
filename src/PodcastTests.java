@@ -17,12 +17,15 @@ import PodcastModel.PodcastModel;
 /**
  * Unit Tests for PodcastPlayer
  * 
- * @author Michael Stark, Nathan Teku, Tinnawit Mangkang
+ * @author Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
  */
 class PodcastTests {
 
+	
+	
 	@Test
 	void testPodcast() throws IOException {
+		
 		PodcastModel myModel = new PodcastModel();
 		PodcastController myController = new PodcastController(myModel);
 		
@@ -37,6 +40,8 @@ class PodcastTests {
 		
 		// Clear all podcast feed in case defaults exist
 		while (!myController.getPodcastFeeds().isEmpty()) {
+			
+	
 			myController.removePodcastFeed(myController.getPodcastFeeds().get(0));
 		}
 		

@@ -53,6 +53,12 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+
+/**
+ * Thisclass displays the view of the podcast
+ * @author Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
+ *
+ */
 @SuppressWarnings("deprecation")
 public class PodcastView extends Application implements Observer {
 
@@ -137,7 +143,10 @@ public class PodcastView extends Application implements Observer {
 
 		return menuBar;
 	}
-
+  
+	/**
+	 * This function creates the GUI view
+	 */
 	private void createView() {
 
 		obj = new BorderPane();
@@ -568,7 +577,7 @@ public class PodcastView extends Application implements Observer {
 		}
 	}
 
-	/*
+	/**
 	 * Stops the when the media player is stalled or is at the end of the episode,
 	 * resets the progress bar back to the start, and renames the play/pause button
 	 * to play.

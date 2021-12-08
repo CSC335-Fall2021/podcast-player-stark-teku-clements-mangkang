@@ -9,7 +9,7 @@ import java.net.URL;
 import PodcastEntry.PodcastEpisode;
 /**
  * This class's main purpose is to download the specific podcast episode
- * @author Nathan Teku
+ * @author Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang 
  *
  */
 public class DownloadEpisode {

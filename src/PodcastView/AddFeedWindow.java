@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 /**
  * A Modal dialog box for the user to add an RSS feed to the app
  * 
- * @author Michael Stark
+ * @author  Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
  */
 public class AddFeedWindow extends Stage {
 

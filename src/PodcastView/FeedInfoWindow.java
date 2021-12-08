@@ -21,7 +21,7 @@ import javafx.stage.Stage;
 /**
  * Window for displaying info about a podcast feed
  * 
- * @author Michael Stark
+ * @author  Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
  */
 public class FeedInfoWindow extends Stage {
 

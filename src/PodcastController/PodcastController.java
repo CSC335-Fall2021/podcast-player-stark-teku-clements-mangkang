@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 /**
  * The Controller for the Podcast Player MVC
+ * @author Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
  */
 public class PodcastController {
 	private PodcastModel myModel;

@@ -15,7 +15,7 @@ import java.util.Observable;
 /**
  * The Model for the Podcast Player MVC
  * 
- * @author Michael Stark
+ * @author Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
  */
 @SuppressWarnings("deprecation")
 public class PodcastModel extends Observable {

@@ -5,7 +5,7 @@ import PodcastEntry.PodcastEpisode;
 /**
  * A simple class for signaling to the view that a new episode should play
  * 
- * @author Michael Stark
+ * @author  Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
  */
 public class PlayUpdate {
 	private PodcastEpisode activeEpisode;

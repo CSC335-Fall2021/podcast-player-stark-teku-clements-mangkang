@@ -20,7 +20,7 @@ import javax.xml.stream.events.XMLEvent;
  * This class is responsible for taking a RSS feed and then parsing it into a
  * PodcastFeed class with its associated PodcastEpisodes
  * 
- * @author Michael Stark
+ * @author Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
  */
 public class PodcastFeedParser {
 	private URL feedURL;

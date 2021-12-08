@@ -7,18 +7,30 @@ import java.time.LocalDate;
  * This class represents and individual episode of a podcast and contains all of
  * the associated details belonging to it
  * 
- * @author Michael Stark
+ * @author  Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang 
  */
 public class PodcastEpisode implements Serializable {
+	
+	
+	/**serial VersionUID*/
 	private static final long serialVersionUID = 1L;
+	/**episodeGUID*/
 	private String episodeGUID;
+	/**episodeTitle*/
 	private String episodeTitle;
+	/**episodeDescription*/
 	private String episodeDescription;
+	/**episodeLink*/
 	private String episodeLink;
+	/**episodeMediaURL*/
 	private String episodeMediaURL;
+	/**episodeDuration*/
 	private String episodeDuration;
+	/**episodeDate*/
 	private LocalDate episodeDate;
+	/**listendTo*/
 	private boolean listenedTo;
+	/**isDownloaded*/
 	private boolean isDownloaded;
 
 	/**

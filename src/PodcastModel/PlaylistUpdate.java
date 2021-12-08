@@ -6,7 +6,7 @@ import PodcastEntry.PodcastFeed;
  * A simple class for signalling to the view that a PodcastFeed has been fetched
  * and parsed
  * 
- * @author Michael Stark
+ * @author Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
  */
 public class PlaylistUpdate {
 	private PodcastFeed feed;

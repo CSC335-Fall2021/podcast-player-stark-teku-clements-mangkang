@@ -10,22 +10,34 @@ import java.util.ArrayList;
  * This class represents a Podcast RSS Feed. It contains details about the
  * podcast itself as well as a list of associated episodes
  * 
- * @author Michael Stark
+ * @author Michael Stark, Nathan Teku, Kyle Clements, Tinnawit Mangkang
  */
 public class PodcastFeed implements Serializable {
+	 
+	// serialVersionUID
 	private static final long serialVersionUID = 2L;
+	/** feedURL*/
 	private String feedURL;
+	/**feedTitle*/
 	private String feedTitle;
+	/**feedDescription*/
 	private String feedDescription;
+	/**feedCopyright*/
 	private String feedCopyright;
+	/**feedLanguage*/
 	private String feedLanguage;
+	/**feedImageURL*/
 	private String feedImageURL;
+	/**feedImage*/
 	private transient Image feedImage;
+	/**feedLink*/
 	private String feedLink;
+	/**feedEpisodes*/
 	private ArrayList<PodcastEpisode> feedEpisodes;
 
 	/**
 	 * Constructs a new Podcast Feed object with default values
+	 * @param url title, desc, copyright, lang, image
 	 */
 	public PodcastFeed(String url, String title, String desc, String copyright, String lang, String image,
 			String link) {
