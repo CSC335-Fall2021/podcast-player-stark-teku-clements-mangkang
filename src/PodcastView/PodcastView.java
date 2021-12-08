@@ -116,6 +116,7 @@ public class PodcastView extends Application implements Observer {
 		stage.show();
 	}
 
+	
 	/**
 	 * Creates our MenuBar
 	 * 
@@ -142,11 +143,11 @@ public class PodcastView extends Application implements Observer {
 		obj = new BorderPane();
 		obj.setMinSize(minWindowWidth, minWindowHeight);
 		obj.setPadding(new Insets(15));
-		 Stop[] stops = new Stop[] {   new Stop(0, Color.DARKOLIVEGREEN),new Stop(1, Color.BLUE)
-		      };
-		 LinearGradient gradient = new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
+	 
+		 
+		  
 	
-		obj.setStyle("-fx-background-color:#00FF7F; -fx-opacity:1;");
+		obj.setStyle("-fx-background-color: linear-gradient(from 15% 35% to 100% 100%, #009245,#FCEE21)");
 
 		// Create the list of Podcast Episodes
 		podcastList = new TableView<PodcastEpisode>();
@@ -373,7 +374,7 @@ public class PodcastView extends Application implements Observer {
 				DownloadEpisode obj = new DownloadEpisode(url, name,podcastList.getSelectionModel().getSelectedItem());
 
 				Alert alert = new Alert(AlertType.INFORMATION);
-				alert.setTitle("Error!");
+				alert.setTitle("Success!");
 				alert.setContentText("Download is complete!");
 				alert.showAndWait();
 
@@ -510,12 +511,13 @@ public class PodcastView extends Application implements Observer {
 				option.stop();
 			}
 
+			
 			// Load and play our new file
 			if (playEpisode.getEpisode() != null) {
 				Media currentMedia = new Media(playEpisode.getEpisode().getMediaURL());
 				if (playEpisode.getEpisode().gotDownloaded() == true) {
 					//File file = new File(playEpisode.getEpisode().getTitle() + ".mp4");
-					headerLabel.setText("Loading Downloaded File: " + playEpisode.getEpisode().getTitle());
+					headerLabel.setText("Loading: " + playEpisode.getEpisode().getTitle() + ", Episode is Downloaded");
 						 
 					 
 				}
