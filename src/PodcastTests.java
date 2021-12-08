@@ -2,6 +2,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.io.File;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ import PodcastModel.PodcastModel;
 /**
  * Unit Tests for PodcastPlayer
  * 
- * @author Michael Stark, Nathan Teku
+ * @author Michael Stark, Nathan Teku, Tinnawit Mangkang
  */
 class PodcastTests {
 
@@ -24,6 +25,15 @@ class PodcastTests {
 	void testPodcast() throws IOException {
 		PodcastModel myModel = new PodcastModel();
 		PodcastController myController = new PodcastController(myModel);
+		
+		// Deletes PodcastDB so when loadFeeds is called later, PodcastDB doesn't exist,
+		// so feeds wouldn't be added into the model, which then allows loadFeeds
+		// to add in the default feeds as there wouldn't be any feeds in the model.
+		File fileToDelete = new File("PodcastDB");
+		fileToDelete.delete();
+		
+		// Adds in the default feeds to the model
+		myController.loadFeeds();
 		
 		// Clear all podcast feed in case defaults exist
 		while (!myController.getPodcastFeeds().isEmpty()) {
