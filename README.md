@@ -1,3 +1,3 @@
 # Podcast Player
 
-CSC 335 Team Project
+Podcast Player project using JavaFX in Agile Team Development
